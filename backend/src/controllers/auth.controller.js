@@ -59,16 +59,15 @@ async function registerUser(req, res) {
 async function loginUser(req,res){
     const {username , email , password} = req.body;
     
-    const user = await userModel.findOne({
-        $or : [
-            {
-                username
-            },
-            {
-                email   
-            }
-        ]
-    })
+    const query = [];
+    if (username) query.push({ username });
+    if (email) query.push({ email });
+
+    if (query.length === 0) {
+        return res.status(400).json({ message: "Username or email is required" });
+    }
+
+    const user = await userModel.findOne({ $or: query });
 
     if(!user){
         return res.status(401).json({
