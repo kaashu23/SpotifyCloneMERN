@@ -14,6 +14,14 @@ import Player from './components/Player';
 axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
 axios.defaults.withCredentials = true;
 
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentSong, setCurrentSong] = useState(null);
@@ -37,6 +45,9 @@ function App() {
         }
       } catch (err) {
         console.log("Not logged in or error fetching user profile");
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+        }
       }
     };
     fetchMe();

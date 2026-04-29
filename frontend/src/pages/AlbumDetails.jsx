@@ -54,6 +54,16 @@ const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLi
         {/* Action Bar */}
         <div className="p-8 bg-black/20 flex items-center gap-6">
           <button 
+            onClick={async () => {
+              await axios.post('/api/auth/logout');
+              localStorage.removeItem('token');
+              navigate('/login');
+            }}
+            className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
+          >
+            Logout
+          </button>
+          <button 
             onClick={() => album.musics?.length > 0 && playSong(album.musics[0], album.musics)}
             className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:scale-105 transition-all shadow-lg"
           >

@@ -16,11 +16,13 @@ const Auth = ({ setCurrentUser }) => {
     try {
       if (isRegistering) {
         const res = await axios.post('/api/auth/register', { username, email, password, role });
+        localStorage.setItem('token', res.data.token);
         setCurrentUser(res.data.user);
         setMessage('Registered successfully! You are now logged in.');
         navigate('/');
       } else {
         const res = await axios.post('/api/auth/login', { email, password });
+        localStorage.setItem('token', res.data.token);
         setCurrentUser(res.data.user);
         setMessage('Logged in successfully!');
         navigate('/');
