@@ -18,7 +18,6 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
         setMusics(res.data.likedSongs || []);
       } catch (err) {
         if (err.response?.status === 401) {
-          localStorage.removeItem('token');
           navigate('/login');
         }
         console.error('Failed to fetch liked songs', err);

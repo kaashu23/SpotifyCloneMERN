@@ -56,7 +56,6 @@ const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLi
           <button 
             onClick={async () => {
               await axios.post('/api/auth/logout');
-              localStorage.removeItem('token');
               navigate('/login');
             }}
             className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
