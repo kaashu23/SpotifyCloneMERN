@@ -76,7 +76,7 @@ IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
    - **Build Command**: `npm install`
    - **Start Command**: `node src/index.js` (or `npm start` if defined in package.json)
 6. Scroll down to **Environment Variables** and add all the keys from your `.env` file (MONGO_URI, JWT_SECRET, IMAGEKIT, etc.).
-7. Click **Create Web Service**. Wait for the build to finish, and copy the deployed URL (e.g., `https://spotify-backend.onrender.com`).
+7. Click **Create Web Service**. Wait for the build to finish, and copy the deployed URL (e.g., `https://spotifyclonemern.onrender.com`).
 
 ### 2. Preparing Frontend for Deployment
 Before deploying the frontend, you need to tell Axios to use your new Render backend URL instead of localhost.
@@ -87,7 +87,7 @@ Before deploying the frontend, you need to tell Axios to use your new Render bac
    import axios from 'axios';
    
    // Replace with your actual Render URL
-   axios.defaults.baseURL = 'https://your-backend-url.onrender.com';
+   axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
    axios.defaults.withCredentials = true;
    ```
 3. Remove the proxy from `vite.config.js` as it is only for local development.

@@ -11,6 +11,7 @@ import Library from './pages/Library';
 import LikedSongs from './pages/LikedSongs';
 import Player from './components/Player';
 
+axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
 axios.defaults.withCredentials = true;
 
 function App() {
