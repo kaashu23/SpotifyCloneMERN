@@ -66,9 +66,7 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
           </div>
 
           <div className="flex flex-col gap-2">
-            {loading ? (
-               <div className="text-center py-4 text-gray-400">Loading your favorites...</div>
-            ) : musics.length > 0 ? (
+            {musics.length > 0 ? (
               musics.map((music, index) => {
                 const isLiked = likedSongs?.includes(music._id);
                 return (
@@ -103,7 +101,9 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
                     </div>
 
                     <div className="text-sm text-gray-400 flex justify-end items-center">
-                      {music.duration ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` : '3:45'}
+                      {music.duration 
+                        ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
+                        : `3:${(music.title.length + 20).toString().padStart(2, '0').substring(0,2)}`}
                     </div>
                   </div>
                 );

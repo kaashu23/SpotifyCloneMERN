@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { Search as SearchIcon } from 'lucide-react';
 
-const Search = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) => {
+const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,8 +51,9 @@ const Search = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) 
               />
             </div>
             <button 
-              onClick={async () => {
-                await axios.post('/api/auth/logout');
+              onClick={() => {
+                localStorage.removeItem('token');
+                setCurrentUser(null);
                 navigate('/login');
               }}
               className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors ml-4"
@@ -66,10 +67,7 @@ const Search = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) 
               {searchQuery ? `Search Results for "${searchQuery}"` : 'Browse All Albums'}
             </h3>
             
-            {loading ? (
-              <div className="text-gray-400">Searching...</div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {albums.map((album) => (
                   <Link to={`/album/${album._id}`} key={album._id} className="bg-[#181818] hover:bg-[#282828] p-4 rounded-md transition-all cursor-pointer group block">
                     <div className="w-full aspect-square bg-gray-700 rounded-md mb-4 shadow-lg flex items-center justify-center">
@@ -83,7 +81,6 @@ const Search = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) 
                   <p className="text-gray-400 text-sm col-span-full">No albums found matching your search.</p>
                 )}
               </div>
-            )}
           </section>
         </div>
       </div>

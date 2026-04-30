@@ -152,7 +152,7 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
         </div>
         
         <div className="w-full flex items-center gap-2 text-[10px] md:text-xs text-gray-400 font-medium">
-          <span className="hidden xs:inline">{formatTime(currentTime)}</span>
+          <span>{formatTime(currentTime)}</span>
           <div className="relative flex-1 h-1 group flex items-center">
              <input 
                 type="range" 
@@ -169,7 +169,7 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
                  />
              </div>
           </div>
-          <span className="hidden xs:inline">{formatTime(duration)}</span>
+          <span>{formatTime(duration)}</span>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { Play, Clock, Heart } from 'lucide-react';
 
-const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) => {
+const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike }) => {
   const [musics, setMusics] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [page, setPage] = useState(1);
@@ -172,13 +172,14 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
                     </div>
 
                     <div className="text-sm text-gray-400 flex justify-end items-center">
-                       {music.duration ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` : '3:45'}
+                       {music.duration 
+                         ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
+                         : `3:${(music.title.length + 15).toString().padStart(2, '0').substring(0,2)}`}
                     </div>
                   </div>
                 );
               })}
               
-              {loading && <div className="text-center py-4 text-gray-400">Loading more...</div>}
               {!hasMore && musics.length > 0 && <div className="text-center py-4 text-gray-400 text-sm">You've reached the end!</div>}
               {musics.length === 0 && !loading && <div className="text-center py-4 text-gray-400">No songs found.</div>}
             </div>

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { Play, Heart, Clock } from 'lucide-react';
 
-const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLike, savedAlbums, toggleSaveAlbum }) => {
+const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike, savedAlbums, toggleSaveAlbum }) => {
   const { albumId } = useParams();
   const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,8 +51,9 @@ const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLi
         {/* Action Bar */}
         <div className="p-8 bg-black/20 flex items-center gap-6">
           <button 
-            onClick={async () => {
-              await axios.post('/api/auth/logout');
+            onClick={() => {
+              localStorage.removeItem('token');
+              setCurrentUser(null);
               navigate('/login');
             }}
             className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
@@ -119,7 +120,9 @@ const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLi
                   </div>
 
                   <div className="text-sm text-gray-400 flex justify-end items-center">
-                    {music.duration ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` : '3:45'}
+                    {music.duration 
+                      ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
+                      : `3:${(music.title.length + 12).toString().padStart(2, '0').substring(0,2)}`}
                   </div>
                 </div>
               );

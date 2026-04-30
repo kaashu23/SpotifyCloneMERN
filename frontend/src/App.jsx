@@ -13,7 +13,7 @@ import Player from './components/Player';
 import Sidebar from './components/Sidebar';
 
 axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
-
+//axios.defaults.baseURL = 'http://localhost:3000';
 // Request interceptor to add the JWT token to headers
 axios.interceptors.request.use(
   (config) => {
@@ -28,6 +28,13 @@ axios.interceptors.request.use(
   }
 );
 
+// Move Protected outside to prevent remounting/blinking
+const Protected = ({ children, loading, currentUser }) => {
+  if (loading && !currentUser) return null;
+  if (!loading && !currentUser) return <Navigate to="/login" />;
+  return children;
+};
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentSong, setCurrentSong] = useState(null);
@@ -40,8 +47,6 @@ function App() {
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        // We only set it to false when we are DONE. 
-        // We don't set it to true here to avoid flickering on re-renders.
         const res = await axios.get('/api/auth/me');
         if (res.data.user) {
           setCurrentUser(res.data.user);
@@ -56,12 +61,6 @@ function App() {
     };
     fetchMe();
   }, []);
-
-  const Protected = ({ children }) => {
-    if (loading) return <div className="h-screen bg-black flex items-center justify-center text-[#1ed760] font-bold">Spotify...</div>;
-    if (!currentUser) return <Navigate to="/login" />;
-    return children;
-  };
 
   const toggleLike = async (musicId) => {
     try {
@@ -93,13 +92,13 @@ function App() {
       <div className="flex-1 overflow-y-auto relative">
         <Routes>
           <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
-          <Route path="/" element={<Protected><Home currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-          <Route path="/search" element={<Protected><Search currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-          <Route path="/album/:albumId" element={<Protected><AlbumDetails currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
-          <Route path="/upload" element={<Protected><Upload currentUser={currentUser} /></Protected>} />
-          <Route path="/create-album" element={<Protected><CreateAlbum currentUser={currentUser} /></Protected>} />
-          <Route path="/library" element={<Protected><Library currentUser={currentUser} /></Protected>} />
-          <Route path="/liked" element={<Protected><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          <Route path="/" element={<Protected loading={loading} currentUser={currentUser}><Home currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          <Route path="/search" element={<Protected loading={loading} currentUser={currentUser}><Search currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
+          <Route path="/upload" element={<Protected loading={loading} currentUser={currentUser}><Upload currentUser={currentUser} /></Protected>} />
+          <Route path="/create-album" element={<Protected loading={loading} currentUser={currentUser}><CreateAlbum currentUser={currentUser} /></Protected>} />
+          <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} /></Protected>} />
+          <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
         </Routes>
       </div>
       {location.pathname !== '/login' && (
