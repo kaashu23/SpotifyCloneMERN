@@ -17,9 +17,6 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
         // The backend populates the likedSongs array with full music objects and their artists
         setMusics(res.data.likedSongs || []);
       } catch (err) {
-        if (err.response?.status === 401) {
-          navigate('/login');
-        }
         console.error('Failed to fetch liked songs', err);
       } finally {
         setLoading(false);

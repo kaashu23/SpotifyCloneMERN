@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth.routes');
 const musicRoutes = require('./routes/music.routes');
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(cors({ 
   origin: (origin, callback) => {
     const allowedOrigins = [

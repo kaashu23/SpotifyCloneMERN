@@ -21,11 +21,13 @@ function App() {
   const [likedSongs, setLikedSongs] = useState([]);
   const [savedAlbums, setSavedAlbums] = useState([]);
   const [songsQueue, setSongsQueue] = useState([]);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
     const fetchMe = async () => {
       try {
+        setLoading(true);
         const res = await axios.get('/api/auth/me');
         if (res.data.user) {
           setCurrentUser(res.data.user);
@@ -38,10 +40,18 @@ function App() {
         }
       } catch (err) {
         console.log("Not logged in or error fetching user profile");
+      } finally {
+        setLoading(false);
       }
     };
     fetchMe();
   }, []);
+
+  const Protected = ({ children }) => {
+    if (loading) return <div className="h-screen bg-black flex items-center justify-center text-[#1ed760] font-bold">Spotify...</div>;
+    if (!currentUser) return <Navigate to="/login" />;
+    return children;
+  };
 
   const toggleLike = async (musicId) => {
     try {
@@ -73,13 +83,13 @@ function App() {
       <div className="flex-1 overflow-y-auto relative">
         <Routes>
           <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
-          <Route path="/" element={<Home currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} />} />
-          <Route path="/search" element={<Search currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} />} />
-          <Route path="/album/:albumId" element={<AlbumDetails currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} />} />
-          <Route path="/upload" element={<Upload currentUser={currentUser} />} />
-          <Route path="/create-album" element={<CreateAlbum currentUser={currentUser} />} />
-          <Route path="/library" element={<Library currentUser={currentUser} />} />
-          <Route path="/liked" element={<LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} />} />
+          <Route path="/" element={<Protected><Home currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          <Route path="/search" element={<Protected><Search currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          <Route path="/album/:albumId" element={<Protected><AlbumDetails currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
+          <Route path="/upload" element={<Protected><Upload currentUser={currentUser} /></Protected>} />
+          <Route path="/create-album" element={<Protected><CreateAlbum currentUser={currentUser} /></Protected>} />
+          <Route path="/library" element={<Protected><Library currentUser={currentUser} /></Protected>} />
+          <Route path="/liked" element={<Protected><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
         </Routes>
       </div>
       {location.pathname !== '/login' && (

@@ -16,10 +16,7 @@ const AlbumDetails = ({ currentUser, playSong, currentSong, likedSongs, toggleLi
         const res = await axios.get(`/api/music/albums/${albumId}`);
         setAlbum(res.data.album);
       } catch (err) {
-        if (err.response?.status === 401) {
-          navigate('/login');
-        }
-        console.error(err);
+        console.error("Fetch album error:", err);
       } finally {
         setLoading(false);
       }

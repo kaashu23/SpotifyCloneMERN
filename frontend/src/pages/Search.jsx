@@ -16,10 +16,7 @@ const Search = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) 
       const res = await axios.get(`/api/music/albums?search=${encodeURIComponent(query)}`);
       setAlbums(res.data.albums || []);
     } catch (err) {
-      if (err.response?.status === 401) {
-        navigate('/login');
-      }
-      console.error(err);
+      console.error("Fetch albums search error:", err);
     } finally {
       setLoading(false);
     }
