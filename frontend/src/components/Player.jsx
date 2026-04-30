@@ -101,7 +101,7 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
   if (!currentSong) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 w-full h-24 bg-[#181818] border-t border-gray-800 text-white px-4 flex items-center justify-between z-50">
+    <div className="fixed bottom-0 left-0 w-full h-20 md:h-24 bg-[#050505] border-t border-gray-800 text-white px-2 md:px-4 flex items-center justify-between z-[60] pb-[calc(env(safe-area-inset-bottom)+12px)] md:pb-0">
       <audio 
         ref={audioRef} 
         src={currentSong.uri} 
@@ -111,48 +111,48 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
       />
 
       {/* Left: Song Info */}
-      <div className="flex items-center gap-4 w-1/3 min-w-[180px]">
-        <div className="w-14 h-14 bg-gray-700 flex-shrink-0 flex items-center justify-center rounded">
-            <span className="text-gray-400 text-xs">Art</span>
+      <div className="flex items-center gap-2 md:gap-4 w-auto md:w-1/3 min-w-0 md:min-w-[180px]">
+        <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-700 flex-shrink-0 flex items-center justify-center rounded">
+            <span className="text-gray-400 text-[10px] md:text-xs">Art</span>
         </div>
-        <div className="flex flex-col justify-center overflow-hidden mr-2">
-          <p className="font-bold text-sm truncate hover:underline cursor-pointer">{currentSong.title}</p>
-          <p className="text-xs text-gray-400 truncate hover:underline cursor-pointer">{currentSong.artist?.username || 'Unknown Artist'}</p>
+        <div className="flex flex-col justify-center overflow-hidden">
+          <p className="font-bold text-xs md:text-sm truncate max-w-[100px] sm:max-w-none">{currentSong.title}</p>
+          <p className="text-[10px] md:text-xs text-gray-400 truncate max-w-[100px] sm:max-w-none">{currentSong.artist?.username || 'Unknown Artist'}</p>
         </div>
-        <button className="text-gray-400 hover:text-white transition-colors">
+        <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
           <Heart size={16} />
         </button>
       </div>
       
       {/* Center: Controls */}
-      <div className="flex-1 max-w-[722px] flex flex-col items-center justify-center px-4">
-        <div className="flex items-center gap-6 mb-2">
-          <button className="text-gray-400 hover:text-white transition-colors">
+      <div className="flex-1 max-w-[600px] flex flex-col items-center justify-center px-2">
+        <div className="flex items-center gap-4 md:gap-6 mb-1 md:mb-2">
+          <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
             <Shuffle size={16} />
           </button>
           
-          <button onClick={playPrev} className="text-gray-400 hover:text-white transition-colors disabled:opacity-50" disabled={!songsQueue || songsQueue.length <= 1}>
-            <SkipBack size={20} fill="currentColor" />
+          <button onClick={playPrev} className="text-gray-400 hover:text-white transition-colors disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
+            <SkipBack size={18} md:size={20} fill="currentColor" />
           </button>
           
           <button 
             onClick={togglePlay} 
-            className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-all text-black"
+            className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-all text-black"
           >
-            {isPlaying ? <Pause size={16} fill="black" /> : <Play size={16} fill="black" className="ml-1" />}
+            {isPlaying ? <Pause size={18} fill="black" /> : <Play size={18} fill="black" className="ml-1" />}
           </button>
           
-          <button onClick={playNext} className="text-gray-400 hover:text-white transition-colors disabled:opacity-50" disabled={!songsQueue || songsQueue.length <= 1}>
-            <SkipForward size={20} fill="currentColor" />
+          <button onClick={playNext} className="text-gray-400 hover:text-white transition-colors disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
+            <SkipForward size={18} md:size={20} fill="currentColor" />
           </button>
 
-          <button className="text-gray-400 hover:text-white transition-colors">
+          <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
             <Repeat size={16} />
           </button>
         </div>
         
-        <div className="w-full flex items-center gap-2 text-xs text-gray-400 font-medium">
-          <span>{formatTime(currentTime)}</span>
+        <div className="w-full flex items-center gap-2 text-[10px] md:text-xs text-gray-400 font-medium">
+          <span className="hidden xs:inline">{formatTime(currentTime)}</span>
           <div className="relative flex-1 h-1 group flex items-center">
              <input 
                 type="range" 
@@ -169,7 +169,7 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
                  />
              </div>
           </div>
-          <span>{formatTime(duration)}</span>
+          <span className="hidden xs:inline">{formatTime(duration)}</span>
         </div>
       </div>
 

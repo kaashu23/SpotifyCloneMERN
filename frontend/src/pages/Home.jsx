@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import Player from '../components/Player';
 import { Play, Clock, Heart } from 'lucide-react';
 
 const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) => {
@@ -95,17 +94,17 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
       
       <div 
         id="scroll-container" 
-        className="flex-1 bg-gradient-to-b from-[#1e1e1e] to-[#121212] overflow-y-auto pb-32"
+        className="flex-1 bg-gradient-to-b from-[#1e1e1e] to-[#121212] overflow-y-auto pb-32 md:pb-32"
       >
-        <div className="p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-white">{getGreeting()}</h2>
+        <div className="p-4 md:p-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">{getGreeting()}</h2>
             <button 
               onClick={async () => {
                 await axios.post('/api/auth/logout');
                 navigate('/login');
               }}
-              className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
+              className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-6 border border-gray-600 text-sm font-bold transition-all whitespace-nowrap"
             >
               Logout
             </button>
@@ -130,20 +129,20 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
           <section>
             <h3 className="text-xl font-bold text-white mb-6">All Songs</h3>
             
-            <div className="text-gray-400 text-sm font-bold border-b border-gray-800 pb-2 mb-4 grid grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-4 px-4">
+            <div className="text-gray-400 text-xs font-bold border-b border-gray-800 pb-2 mb-4 grid grid-cols-[16px_minmax(0,1fr)_40px_100px] sm:grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-2 sm:gap-4 px-2 sm:px-4 uppercase">
                <div>#</div>
                <div>Title</div>
                <div></div>
                <div className="flex justify-end"><Clock size={16} /></div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {musics.map((music, index) => {
                 const isLiked = likedSongs?.includes(music._id);
                 return (
                   <div 
                     key={music._id} 
-                    className={`group flex items-center grid grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-4 px-4 py-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer ${currentSong?._id === music._id ? 'bg-white/10' : ''}`}
+                    className={`group flex items-center grid grid-cols-[16px_minmax(0,1fr)_40px_100px] sm:grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-2 sm:gap-4 px-2 sm:px-4 py-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer ${currentSong?._id === music._id ? 'bg-white/10' : ''}`}
                     onDoubleClick={() => playSong(music, musics)}
                   >
                     <div className="text-gray-400 flex items-center justify-center w-4 h-4" onClick={() => playSong(music, musics)}>

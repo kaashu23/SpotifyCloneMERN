@@ -10,8 +10,9 @@ import CreateAlbum from './pages/CreateAlbum';
 import Library from './pages/Library';
 import LikedSongs from './pages/LikedSongs';
 import Player from './components/Player';
+import Sidebar from './components/Sidebar';
 
-axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
+axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -69,7 +70,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black text-white">
-      <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-y-auto relative">
         <Routes>
           <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
           <Route path="/" element={<Home currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} />} />

@@ -1,65 +1,76 @@
 import React from 'react';
 import { Home, Search, Library, PlusSquare, Heart, UploadCloud } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ currentUser }) => {
-  return (
-    <div className="w-64 bg-black h-full flex flex-col p-6 text-gray-300 hidden md:flex">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <img src="/spotify.svg" className="w-8 h-8" alt="Spotify Logo" />
-          Spotify Clone
-        </h1>
-      </div>
-      
-      <nav className="space-y-4 mb-8">
-        <Link to="/" className="flex items-center gap-4 text-white hover:text-white transition-colors cursor-pointer">
-          <Home size={24} />
-          <span className="font-bold">Home</span>
-        </Link>
-        <Link to="/search" className="flex items-center gap-4 text-gray-400 hover:text-white transition-colors cursor-pointer">
-          <Search size={24} />
-          <span className="font-bold">Search</span>
-        </Link>
-        <Link to="/library" className="flex items-center gap-4 text-gray-400 hover:text-white transition-colors cursor-pointer">
-          <Library size={24} />
-          <span className="font-bold">Your Library</span>
-        </Link>
-      </nav>
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
 
-      <div className="space-y-4 mb-8 border-b border-gray-800 pb-4">
-        {currentUser?.role === 'artist' && (
-          <Link to="/create-album" className="flex items-center gap-4 hover:text-white transition-colors cursor-pointer">
-            <div className="bg-gray-300 text-black p-1 rounded-sm">
-              <PlusSquare size={20} />
-            </div>
-            <span className="font-bold">Create Album</span>
+  const NavLink = ({ to, icon: Icon, children, active }) => (
+    <Link 
+      to={to} 
+      className={`flex items-center gap-4 transition-colors cursor-pointer ${active ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+    >
+      <Icon size={24} />
+      <span className="font-bold hidden lg:inline">{children}</span>
+    </Link>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <div className="w-20 lg:w-64 bg-black h-full flex flex-col p-4 lg:p-6 text-gray-300 hidden md:flex border-r border-gray-800">
+        <div className="mb-8 lg:px-2">
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/spotify.svg" className="w-8 h-8" alt="Spotify Logo" />
+            <h1 className="text-xl font-bold text-white hidden lg:inline">Spotify Clone</h1>
           </Link>
-        )}
-        <Link to="/liked" className="flex items-center gap-4 hover:text-white transition-colors cursor-pointer">
-          <div className="bg-gradient-to-br from-indigo-600 to-purple-400 text-white p-1 rounded-sm">
-            <Heart size={20} />
-          </div>
-          <span className="font-bold">Liked Songs</span>
+        </div>
+        
+        <nav className="space-y-6 mb-8 lg:px-2">
+          <NavLink to="/" icon={Home} active={isActive('/')}>Home</NavLink>
+          <NavLink to="/search" icon={Search} active={isActive('/search')}>Search</NavLink>
+          <NavLink to="/library" icon={Library} active={isActive('/library')}>Your Library</NavLink>
+        </nav>
+
+        <div className="space-y-6 mb-8 border-t border-gray-800 pt-6 lg:px-2">
+          {currentUser?.role === 'artist' && (
+            <NavLink to="/create-album" icon={PlusSquare} active={isActive('/create-album')}>Create Album</NavLink>
+          )}
+          <NavLink to="/liked" icon={Heart} active={isActive('/liked')}>Liked Songs</NavLink>
+          {currentUser?.role === 'artist' && (
+            <NavLink to="/upload" icon={UploadCloud} active={isActive('/upload')}>Upload Song</NavLink>
+          )}
+        </div>
+        
+        <div className="flex-1 overflow-y-auto space-y-4 text-sm lg:px-2 hidden lg:block">
+          <p className="hover:text-white cursor-pointer truncate">Chill Vibes</p>
+          <p className="hover:text-white cursor-pointer truncate">Focus</p>
+          <p className="hover:text-white cursor-pointer truncate">Workout Mix</p>
+          <p className="hover:text-white cursor-pointer truncate">Discover Weekly</p>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#050505] border-t border-gray-800 flex justify-around items-center py-3 z-50 px-2">
+        <Link to="/" className={`flex flex-col items-center gap-1 ${isActive('/') ? 'text-white' : 'text-gray-400'}`}>
+          <Home size={22} />
+          <span className="text-[10px] font-medium">Home</span>
         </Link>
-        {currentUser?.role === 'artist' && (
-          <Link to="/upload" className="flex items-center gap-4 hover:text-white transition-colors cursor-pointer">
-            <div className="bg-green-500 text-black p-1 rounded-sm">
-              <UploadCloud size={20} />
-            </div>
-            <span className="font-bold">Upload Song</span>
-          </Link>
-        )}
+        <Link to="/search" className={`flex flex-col items-center gap-1 ${isActive('/search') ? 'text-white' : 'text-gray-400'}`}>
+          <Search size={22} />
+          <span className="text-[10px] font-medium">Search</span>
+        </Link>
+        <Link to="/library" className={`flex flex-col items-center gap-1 ${isActive('/library') ? 'text-white' : 'text-gray-400'}`}>
+          <Library size={22} />
+          <span className="text-[10px] font-medium">Library</span>
+        </Link>
+        <Link to="/liked" className={`flex flex-col items-center gap-1 ${isActive('/liked') ? 'text-white' : 'text-gray-400'}`}>
+          <Heart size={22} />
+          <span className="text-[10px] font-medium">Liked</span>
+        </Link>
       </div>
-      
-      <div className="flex-1 overflow-y-auto space-y-3 text-sm">
-        <p className="hover:text-white cursor-pointer">Chill Vibes</p>
-        <p className="hover:text-white cursor-pointer">Focus</p>
-        <p className="hover:text-white cursor-pointer">Workout Mix</p>
-        <p className="hover:text-white cursor-pointer">Top 50 - Global</p>
-        <p className="hover:text-white cursor-pointer">Discover Weekly</p>
-      </div>
-    </div>
+    </>
   );
 };
 

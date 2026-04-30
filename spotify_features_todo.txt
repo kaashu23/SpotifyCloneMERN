@@ -1,0 +1,36 @@
+SPOTIFY CLONE - UPCOMING FEATURES TODO LIST
+==========================================
+
+1. PLAYLIST MANAGEMENT
+   - Create, name, and edit custom playlists.
+   - Add/Remove songs from specific playlists.
+   - Private vs Public playlist settings.
+
+2. ARTIST PROFILE & DASHBOARD
+   - Dedicated pages for Artists with bios and top tracks.
+   - Follow/Unfollow artist functionality.
+   - Analytics for artists (track play counts).
+
+3. ENHANCED SEARCH & DISCOVERY
+   - Real-time search for Tracks, Albums, and Artists.
+   - Browse by Category/Genre (Rock, Pop, Jazz, etc.).
+   - "Top Charts" globally and by country.
+
+4. ADVANCED PLAYER FEATURES
+   - Interactive Queue UI (View and Reorder).
+   - Lyrics integration (Sync with audio).
+   - Playback speed control and crossfade.
+
+5. SOCIAL & SHARING
+   - Friend Activity feed (See what friends listen to).
+   - Shareable links for tracks and playlists.
+   - Collaborative playlists.
+
+6. USER EXPERIENCE
+   - "Recently Played" history section on Home.
+   - Personalized recommendations based on liked songs.
+   - Offline mode support (Caching tracks).
+
+==========================================
+KEEP LOCAL - DO NOT COMMIT TO PUBLIC REPO
+==========================================

@@ -3,121 +3,113 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Auth = ({ setCurrentUser }) => {
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [username, setUsername] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [role, setRole] = useState('user');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleAuth = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
-      if (isRegistering) {
-        const res = await axios.post('/api/auth/register', { username, email, password, role });
-        setCurrentUser(res.data.user);
-        setMessage('Registered successfully! You are now logged in.');
-        navigate('/');
-      } else {
-        const res = await axios.post('/api/auth/login', { email, password });
-        setCurrentUser(res.data.user);
-        setMessage('Logged in successfully!');
-        navigate('/');
-      }
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const payload = isLogin ? { email, password } : { username, email, password, role };
+      const res = await axios.post(endpoint, payload);
+      setCurrentUser(res.data.user);
+      navigate('/');
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Authentication failed');
+      setError(err.response?.data?.message || 'Something went wrong');
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#121212] p-6 sm:p-8 rounded-lg shadow-2xl">
-        <h1 className="text-2xl font-bold text-white text-center mb-6 flex justify-center items-center gap-2">
-          <img src="/spotify.svg" className="w-8 h-8" alt="Spotify Logo" />
-          Spotify Clone
-        </h1>
-        
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">
-          {isRegistering ? 'Sign up to start' : 'Log in to Spotify'}
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#050505] p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-[#121212] p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md my-4">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <img src="/spotify.svg" className="w-10 h-10 sm:w-12 sm:h-12 mb-4" alt="Spotify Logo" />
+          <h2 className="text-xl sm:text-2xl font-bold text-white text-center">
+            {isLogin ? 'Log in to Spotify' : 'Sign up to start listening'}
+          </h2>
+        </div>
 
-        {message && (
-          <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded mb-6 text-center text-sm">
-            {message}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded mb-4 text-xs sm:text-sm">
+            {error}
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="flex flex-col gap-4">
-          {isRegistering && (
-            <>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Username</label>
-                <input 
-                  className="bg-[#121212] md:bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors hover:border-gray-400"
-                  type="text" 
-                  placeholder="Username" 
-                  value={username} 
-                  onChange={(e) => setUsername(e.target.value)} 
-                  required={isRegistering} 
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Role</label>
-                <select 
-                  className="bg-[#121212] md:bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors hover:border-gray-400"
-                  value={role} 
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <option value="user">User</option>
-                  <option value="artist">Artist</option>
-                </select>
-              </div>
-            </>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          {!isLogin && (
+            <div>
+              <label className="block text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-1 sm:mb-2">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-[#242424] border border-gray-700 rounded p-2.5 sm:p-3 text-white focus:border-white outline-none transition-all text-sm"
+                placeholder="Username"
+                required
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-1 sm:mb-2">Email address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#242424] border border-gray-700 rounded p-2.5 sm:p-3 text-white focus:border-white outline-none transition-all text-sm"
+              placeholder="Email address"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-1 sm:mb-2">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#242424] border border-gray-700 rounded p-2.5 sm:p-3 text-white focus:border-white outline-none transition-all text-sm"
+              placeholder="Password"
+              required
+            />
+          </div>
+
+          {!isLogin && (
+            <div>
+              <label className="block text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-1 sm:mb-2">I want to be an</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full bg-[#242424] border border-gray-700 rounded p-2.5 sm:p-3 text-white focus:border-white outline-none transition-all text-sm"
+              >
+                <option value="user">Listener</option>
+                <option value="artist">Artist</option>
+              </select>
+            </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-white">Email address</label>
-            <input 
-              className="bg-[#121212] md:bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors hover:border-gray-400"
-              type="email" 
-              placeholder="Email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-white">Password</label>
-            <input 
-              className="bg-[#121212] md:bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors hover:border-gray-400"
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-          </div>
-          
-          <button 
+          <button
             type="submit"
-            className="mt-2 bg-[#1ed760] hover:bg-[#1fdf64] hover:scale-105 transition-all text-black font-bold py-3 rounded-full text-base"
+            className="w-full bg-[#1ed760] text-black font-bold py-2.5 sm:py-3 rounded-full hover:scale-[1.02] transition-transform mt-2 sm:mt-4 text-sm"
           >
-            {isRegistering ? 'Sign up' : 'Log In'}
+            {isLogin ? 'Log In' : 'Sign Up'}
           </button>
         </form>
-        
-        <div className="mt-6 pt-6 border-t border-gray-700 text-center">
-          <p className="text-gray-400 font-bold text-sm">
-            {isRegistering ? 'Already have an account?' : "Don't have an account?"}
+
+        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-800 text-center">
+          <p className="text-xs sm:text-sm text-gray-400">
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-white hover:underline ml-1 sm:ml-2 font-bold"
+            >
+              {isLogin ? 'Sign up for Spotify' : 'Log in here'}
+            </button>
           </p>
-          <button 
-            onClick={() => setIsRegistering(!isRegistering)}
-            className="mt-4 w-full bg-transparent border border-gray-500 hover:border-white text-white font-bold py-3 rounded-full transition-colors text-sm"
-          >
-            {isRegistering ? 'Log in here' : 'Sign up for Spotify'}
-          </button>
         </div>
       </div>
     </div>
