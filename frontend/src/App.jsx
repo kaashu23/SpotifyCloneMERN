@@ -27,19 +27,16 @@ function App() {
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        setLoading(true);
+        // We only set it to false when we are DONE. 
+        // We don't set it to true here to avoid flickering on re-renders.
         const res = await axios.get('/api/auth/me');
         if (res.data.user) {
           setCurrentUser(res.data.user);
-          if (res.data.user.likedSongs) {
-            setLikedSongs(res.data.user.likedSongs);
-          }
-          if (res.data.user.savedAlbums) {
-            setSavedAlbums(res.data.user.savedAlbums);
-          }
+          if (res.data.user.likedSongs) setLikedSongs(res.data.user.likedSongs);
+          if (res.data.user.savedAlbums) setSavedAlbums(res.data.user.savedAlbums);
         }
       } catch (err) {
-        console.log("Not logged in or error fetching user profile");
+        console.log("Initial auth check: Not logged in");
       } finally {
         setLoading(false);
       }
