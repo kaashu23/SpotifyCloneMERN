@@ -5,7 +5,22 @@ const authRoutes = require('./routes/auth.routes');
 const musicRoutes = require('./routes/music.routes');
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:5173', 'https://spotifyclonemern.onrender.com', 'https://spotifyclonemern.netlify.app'], credentials: true }));
+app.use(cors({ 
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173', 
+      'https://spotifyclonemern.onrender.com', 
+      'https://spotifyclonemern.netlify.app'
+    ];
+    // Allow any netlify or onrender preview/main URL
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('.onrender.com')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }, 
+  credentials: true 
+}));
 app.use(express.json());
 app.use(cookieParser());
 

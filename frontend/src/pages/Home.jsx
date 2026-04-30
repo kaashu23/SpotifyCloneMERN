@@ -43,10 +43,7 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
         setPage(pageNum);
       }
     } catch (err) {
-      if (err.response?.status === 401) {
-        navigate('/login');
-      }
-      console.error(err);
+      console.error("Fetch musics error:", err);
     } finally {
       setLoading(false);
     }
