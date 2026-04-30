@@ -97,8 +97,9 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-white">{getGreeting()}</h2>
             <button 
-              onClick={async () => {
-                await axios.post('/api/auth/logout');
+              onClick={() => {
+                localStorage.removeItem('token');
+                setCurrentUser(null);
                 navigate('/login');
               }}
               className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-6 border border-gray-600 text-sm font-bold transition-all whitespace-nowrap"

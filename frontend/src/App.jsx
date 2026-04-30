@@ -13,7 +13,20 @@ import Player from './components/Player';
 import Sidebar from './components/Sidebar';
 
 axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
-axios.defaults.withCredentials = true;
+
+// Request interceptor to add the JWT token to headers
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);

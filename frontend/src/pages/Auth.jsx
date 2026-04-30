@@ -18,6 +18,9 @@ const Auth = ({ setCurrentUser }) => {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin ? { email, password } : { username, email, password, role };
       const res = await axios.post(endpoint, payload);
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setCurrentUser(res.data.user);
       navigate('/');
     } catch (err) {

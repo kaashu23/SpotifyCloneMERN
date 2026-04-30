@@ -36,15 +36,9 @@ async function registerUser(req, res) {
         role: user.role
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 24 * 60 * 60 * 1000
-    });
-
     res.status(201).json({
         message: "User registered successfully",
+        token, // Send token to frontend
         user: {
             id: user._id,
             username: user.username,
@@ -52,9 +46,7 @@ async function registerUser(req, res) {
             role: user.role
         }
     })
-
 }
-
 
 async function loginUser(req,res){
     const {username , email , password} = req.body;
@@ -88,15 +80,9 @@ async function loginUser(req,res){
         role : user.role
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 24 * 60 * 60 * 1000
-    });
-
     res.status(200).json({
         message : "User logged in successfully",
+        token, // Send token to frontend
         user : {
             id : user._id,
             username : user.username,
@@ -108,13 +94,9 @@ async function loginUser(req,res){
 }
 
 async function logoutUser(req,res){
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none'
-    });
+    // With JWT headers, the backend doesn't need to do anything for logout
     res.status(200).json({
-        message : "User logged out successfully"
+        message : "User logged out successfully (Clear token on frontend)"
     })
 }
 
