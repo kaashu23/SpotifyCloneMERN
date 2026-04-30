@@ -174,7 +174,7 @@ const Home = ({ currentUser, playSong, currentSong, likedSongs, toggleLike }) =>
                     </div>
 
                     <div className="text-sm text-gray-400 flex justify-end items-center">
-                       3:00
+                       {music.duration ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` : '3:45'}
                     </div>
                   </div>
                 );

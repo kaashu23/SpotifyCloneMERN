@@ -12,7 +12,7 @@ import LikedSongs from './pages/LikedSongs';
 import Player from './components/Player';
 import Sidebar from './components/Sidebar';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = 'https://spotifyclonemern.onrender.com';
 axios.defaults.withCredentials = true;
 
 function App() {
