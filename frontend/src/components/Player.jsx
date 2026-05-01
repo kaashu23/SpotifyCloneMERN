@@ -190,25 +190,25 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
           transform: isExpanded ? `translateY(${dragOffset}px)` : 'translateY(100%)',
           transition: dragOffset > 0 ? 'none' : 'transform 0.5s cubic-bezier(0, 0, 0.2, 1), opacity 0.5s ease-out'
         }}
-        className={`md:hidden fixed inset-0 bg-gradient-to-b from-[#2e1d4b] via-[#12101d] to-black z-[110] flex flex-col p-8 pb-safe ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`md:hidden fixed inset-0 bg-gradient-to-b from-[#2e1d4b] via-[#12101d] to-black z-[110] flex flex-col p-6 pb-safe ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.2),transparent_70%)] pointer-events-none" />
         
-        <header className="flex justify-between items-center mb-12 relative z-10">
+        <header className="flex justify-between items-center mb-4 relative z-10">
           <button onClick={() => setIsExpanded(false)} className="p-2 -ml-2 text-white/60 hover:text-white transition-colors active:scale-90">
-            <ChevronDown size={36} />
+            <ChevronDown size={32} />
           </button>
           <div className="text-center flex-1 px-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300/30">Playing Track</p>
-            <p className="text-xs font-black text-white mt-1 truncate">{currentSong.title}</p>
+            <p className="text-xs font-black text-white mt-0.5 truncate">{currentSong.title}</p>
           </div>
           <button className="p-2 -mr-2 text-white/60 hover:text-white transition-colors">
-             <ListMusic size={24} />
+             <ListMusic size={20} />
           </button>
         </header>
 
-        <div className="flex-1 flex flex-col items-center justify-center relative z-10">
-          <div className={`w-full aspect-square max-w-[340px] rounded-3xl overflow-hidden shadow-[0_30px_70px_rgba(0,0,0,0.9)] mb-14 transition-transform duration-700 ${isPlaying ? 'scale-100' : 'scale-[0.92] opacity-80'} ring-1 ring-purple-500/20`}>
+        <div className="flex-1 flex flex-col items-center justify-center relative z-10 min-h-0">
+          <div className={`w-full aspect-square max-w-[260px] sm:max-w-[300px] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] mb-6 transition-transform duration-700 ${isPlaying ? 'scale-100' : 'scale-[0.92] opacity-80'} ring-1 ring-purple-500/20 flex-shrink`}>
             {currentSong.image ? (
               <img src={currentSong.image} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -216,20 +216,20 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
             )}
           </div>
 
-          <div className="w-full max-w-[340px] flex items-end justify-between gap-6 mb-12">
+          <div className="w-full max-w-[300px] flex items-end justify-between gap-4 mb-4">
             <div className="min-w-0">
-              <h2 className="text-3xl font-black text-white truncate leading-tight tracking-tighter">{currentSong.title}</h2>
-              <p className="text-xl font-bold text-purple-300/50 truncate mt-1">{currentSong.artist?.username || 'Unknown Artist'}</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white truncate leading-tight tracking-tighter">{currentSong.title}</h2>
+              <p className="text-base sm:text-lg font-bold text-purple-300/50 truncate mt-1">{currentSong.artist?.username || 'Unknown Artist'}</p>
             </div>
             <button 
               onClick={() => toggleLike(currentSong._id)}
               className={`transition-all active:scale-125 mb-1 ${isLiked ? 'text-green-500' : 'text-purple-300/30 hover:text-purple-400'}`}
             >
-              <Heart size={32} fill={isLiked ? "currentColor" : "none"} />
+              <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
             </button>
           </div>
 
-          <div className="w-full max-w-[340px] flex flex-col gap-5">
+          <div className="w-full max-w-[300px] flex flex-col gap-3 mb-4">
             <div className="relative w-full h-6 flex items-center group">
                <input 
                   type="range" 
@@ -248,23 +248,24 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
                    </div>
                </div>
             </div>
-            <div className="flex justify-between text-[11px] font-black text-purple-300/30 tracking-widest uppercase">
+            <div className="flex justify-between text-[10px] font-black text-purple-300/30 tracking-widest uppercase">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between max-w-[320px] mx-auto mt-auto mb-8 relative z-10 px-4">
+        {/* COMPACT & ALIGNED MOBILE CONTROLS */}
+        <div className="w-full flex items-center justify-between max-w-[280px] mx-auto mt-auto mb-6 relative z-10 px-2 gap-4">
           <button className="text-purple-300/30 hover:text-white transition-colors">
-            <Shuffle size={20} />
+            <Shuffle size={18} />
           </button>
           <button onClick={playPrev} className="text-white hover:text-purple-300 transition-all active:scale-75">
             <SkipBack size={32} fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black shadow-[0_15px_40px_rgba(168,85,247,0.3)] active:scale-90 transition-all"
+            className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-black shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-90 transition-all flex-shrink-0"
           >
             {isPlaying ? <Pause size={28} fill="black" /> : <Play size={28} fill="black" className="ml-1" />}
           </button>
@@ -272,7 +273,7 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
             <SkipForward size={32} fill="currentColor" />
           </button>
           <button className="text-purple-300/30 hover:text-white transition-colors">
-            <Repeat size={20} />
+            <Repeat size={18} />
           </button>
         </div>
       </div>
