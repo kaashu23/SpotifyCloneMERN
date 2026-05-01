@@ -223,24 +223,25 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between max-w-[360px] mx-auto mt-auto mb-8 relative z-10">
-          <button className="text-purple-300/30 hover:text-white transition-colors active:scale-90">
-            <Shuffle size={26} />
+        {/* Updated Control Sizes for Mobile */}
+        <div className="w-full flex items-center justify-between max-w-[320px] mx-auto mt-auto mb-8 relative z-10 px-4">
+          <button className="text-purple-300/30 hover:text-white transition-colors">
+            <Shuffle size={20} />
           </button>
           <button onClick={playPrev} className="text-white hover:text-purple-300 transition-all active:scale-75">
-            <SkipBack size={44} fill="currentColor" />
+            <SkipBack size={32} fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-22 h-22 bg-white rounded-full flex items-center justify-center text-black shadow-[0_15px_40px_rgba(168,85,247,0.3)] active:scale-90 transition-all"
+            className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black shadow-[0_15px_40px_rgba(168,85,247,0.3)] active:scale-90 transition-all"
           >
-            {isPlaying ? <Pause size={38} fill="black" /> : <Play size={38} fill="black" className="ml-1.5" />}
+            {isPlaying ? <Pause size={28} fill="black" /> : <Play size={28} fill="black" className="ml-1" />}
           </button>
           <button onClick={playNext} className="text-white hover:text-purple-300 transition-all active:scale-75">
-            <SkipForward size={44} fill="currentColor" />
+            <SkipForward size={32} fill="currentColor" />
           </button>
-          <button className="text-purple-300/30 hover:text-white transition-colors active:scale-90">
-            <Repeat size={26} />
+          <button className="text-purple-300/30 hover:text-white transition-colors">
+            <Repeat size={20} />
           </button>
         </div>
       </div>
