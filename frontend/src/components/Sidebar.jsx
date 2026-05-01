@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Search, Library, PlusSquare, Heart, UploadCloud } from 'lucide-react';
+import { Home, Search, Library, PlusSquare, Heart, UploadCloud, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ currentUser }) => {
@@ -39,7 +39,10 @@ const Sidebar = ({ currentUser }) => {
           )}
           <NavLink to="/liked" icon={Heart} active={isActive('/liked')}>Liked Songs</NavLink>
           {currentUser?.role === 'artist' && (
-            <NavLink to="/upload" icon={UploadCloud} active={isActive('/upload')}>Upload Song</NavLink>
+            <>
+              <NavLink to="/upload" icon={UploadCloud} active={isActive('/upload')}>Upload Song</NavLink>
+              <NavLink to="/manage-content" icon={Settings} active={isActive('/manage-content')}>Manage Content</NavLink>
+            </>
           )}
         </div>
         

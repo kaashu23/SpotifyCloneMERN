@@ -7,9 +7,18 @@ const authMiddleware = require('../middlewaares/auth.middleware')
 const upload = multer({
     storage: multer.memoryStorage()
 })
-router.post("/upload", authMiddleware.authArtist, upload.single("music"), musicController.createMusic)
+router.post("/upload", authMiddleware.authArtist, upload.fields([
+    { name: 'music', maxCount: 1 },
+    { name: 'image', maxCount: 1 }
+]), musicController.createMusic)
 
-router.post("/album", authMiddleware.authArtist, musicController.createAlbum)
+router.post("/album", authMiddleware.authArtist, upload.single('image'), musicController.createAlbum)
+
+// Management routes
+router.get("/artist/content", authMiddleware.authArtist, musicController.getArtistContent)
+router.delete("/song/:musicId", authMiddleware.authArtist, musicController.deleteMusic)
+router.put("/album/image/:albumId", authMiddleware.authArtist, upload.single('image'), musicController.updateAlbumImage)
+router.put("/song/image/:musicId", authMiddleware.authArtist, upload.single('image'), musicController.updateMusicImage)
 
 router.get("/", authMiddleware.authUser, musicController.getAllMusics)
 

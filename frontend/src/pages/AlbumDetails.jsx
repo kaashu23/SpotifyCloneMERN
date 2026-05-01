@@ -43,7 +43,11 @@ const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, like
       {/* Header Section */}
       <header className="p-4 md:p-8 pt-16 md:pt-20 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
         <div className="w-48 h-48 md:w-60 md:h-60 bg-gradient-to-br from-gray-700 to-gray-800 shadow-2xl flex items-center justify-center text-6xl font-black text-white/10 rounded-xl overflow-hidden shadow-black/50 border border-white/5 relative group">
-          {album.title.substring(0, 2).toUpperCase()}
+          {album.image ? (
+            <img src={album.image} alt={album.title} className="w-full h-full object-cover" />
+          ) : (
+            album.title.substring(0, 2).toUpperCase()
+          )}
           <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300"></div>
         </div>
         
@@ -129,6 +133,13 @@ const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, like
                 </div>
                 
                 <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-10 h-10 bg-white/5 rounded flex-shrink-0 flex items-center justify-center border border-white/5 overflow-hidden">
+                    {music.image ? (
+                      <img src={music.image} alt={music.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-gray-500">SONG</span>
+                    )}
+                  </div>
                   <div className="flex flex-col truncate">
                     <span className={`truncate font-bold text-sm sm:text-base ${isActive ? 'text-green-500' : 'text-white'}`}>
                       {music.title}
@@ -148,10 +159,10 @@ const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, like
                   </button>
                 </div>
 
-                <div className="text-sm text-gray-400 font-medium flex justify-end items-center">
-                  {music.duration 
+                <div className="text-sm text-gray-400 font-medium flex justify-end items-center w-20">
+                  {music.duration > 0 
                     ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
-                    : `3:${(music.title.length + 12).toString().padStart(2, '0').substring(0,2)}`}
+                    : "--:--"}
                 </div>
               </div>
             );

@@ -113,7 +113,11 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
       {/* Left: Song Info */}
       <div className="flex items-center gap-3 md:gap-4 w-auto md:w-1/3 min-w-0">
         <div className="w-12 h-12 md:w-16 md:h-16 bg-white/5 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden shadow-2xl border border-white/5">
-            <span className="text-gray-500 text-[10px] md:text-xs font-bold">SONG</span>
+            {currentSong.image ? (
+              <img src={currentSong.image} alt={currentSong.title} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-gray-500 text-[10px] md:text-xs font-bold">SONG</span>
+            )}
         </div>
         <div className="flex flex-col justify-center overflow-hidden">
           <p className="font-bold text-sm md:text-base truncate max-w-[120px] sm:max-w-none hover:underline cursor-pointer">{currentSong.title}</p>

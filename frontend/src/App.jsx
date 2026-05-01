@@ -7,6 +7,7 @@ import Search from './pages/Search';
 import AlbumDetails from './pages/AlbumDetails';
 import Upload from './pages/Upload';
 import CreateAlbum from './pages/CreateAlbum';
+import ManageContent from './pages/ManageContent';
 import Library from './pages/Library';
 import LikedSongs from './pages/LikedSongs';
 import Player from './components/Player';
@@ -107,6 +108,7 @@ function App() {
             <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
             <Route path="/upload" element={<Protected loading={loading} currentUser={currentUser}><Upload currentUser={currentUser} /></Protected>} />
             <Route path="/create-album" element={<Protected loading={loading} currentUser={currentUser}><CreateAlbum currentUser={currentUser} /></Protected>} />
+            <Route path="/manage-content" element={<Protected loading={loading} currentUser={currentUser}><ManageContent currentUser={currentUser} /></Protected>} />
             <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} /></Protected>} />
             <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
           </Routes>

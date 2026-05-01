@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { PlusSquare, Music, Check, AlertCircle } from 'lucide-react';
+import { PlusSquare, Music, Check, AlertCircle, Image as ImageIcon } from 'lucide-react';
 
 const CreateAlbum = ({ currentUser }) => {
   const [title, setTitle] = useState('');
+  const [image, setImage] = useState(null);
   const [musics, setMusics] = useState([]);
   const [selectedMusics, setSelectedMusics] = useState([]);
   const [message, setMessage] = useState('');
@@ -55,20 +56,29 @@ const CreateAlbum = ({ currentUser }) => {
 
   const handleCreateAlbum = async (e) => {
     e.preventDefault();
-    if (!title) {
-      setMessage('Please provide an album title.');
+    if (!title || !image) {
+      setMessage('Please provide an album title and a cover image.');
       return;
     }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('image', image);
+    formData.append('musics', JSON.stringify(selectedMusics));
 
     try {
       setLoading(true);
       setMessage('Creating album...');
-      await axios.post('/api/music/album', {
-        title,
-        musics: selectedMusics
+      const token = localStorage.getItem('token');
+      await axios.post('/api/music/album', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
       });
       setMessage('Album created successfully!');
       setTitle('');
+      setImage(null);
       setSelectedMusics([]);
       setTimeout(() => navigate('/library'), 1500);
     } catch (err) {
@@ -113,16 +123,35 @@ const CreateAlbum = ({ currentUser }) => {
           )}
 
           <form onSubmit={handleCreateAlbum} className="flex flex-col gap-8">
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Album Title</label>
-              <input 
-                className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-purple-500 focus:bg-white/10 focus:outline-none transition-all placeholder:text-gray-600"
-                type="text" 
-                placeholder="e.g. My Greatest Hits" 
-                value={title} 
-                onChange={(e) => setTitle(e.target.value)} 
-                required 
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Album Title</label>
+                <input 
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-purple-500 focus:bg-white/10 focus:outline-none transition-all placeholder:text-gray-600"
+                  type="text" 
+                  placeholder="e.g. My Greatest Hits" 
+                  value={title} 
+                  onChange={(e) => setTitle(e.target.value)} 
+                  required 
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Album Cover</label>
+                <div className="relative group">
+                  <input 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files[0])} 
+                    required 
+                  />
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-white flex items-center gap-3 group-hover:bg-white/10 transition-all">
+                    <ImageIcon size={20} className="text-purple-500" />
+                    <span className="text-sm truncate">{image ? image.name : 'Select Cover Image'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div className="flex flex-col gap-3">
@@ -158,7 +187,7 @@ const CreateAlbum = ({ currentUser }) => {
 
             <button 
               type="submit"
-              disabled={loading || !title}
+              disabled={loading || !title || !image}
               className="mt-4 bg-purple-500 hover:bg-purple-400 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed text-white font-black py-4 rounded-full transition-all flex items-center justify-center gap-3 shadow-xl shadow-purple-500/20 active:scale-95"
             >
               {loading ? (

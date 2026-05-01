@@ -6,6 +6,8 @@ import { UploadCloud, Music, AlertCircle } from 'lucide-react';
 const Upload = ({ currentUser }) => {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState(null);
+  const [image, setImage] = useState(null);
+  const [duration, setDuration] = useState(0);
   const [albumId, setAlbumId] = useState('');
   const [artistAlbums, setArtistAlbums] = useState([]);
   const [message, setMessage] = useState('');
@@ -31,6 +33,22 @@ const Upload = ({ currentUser }) => {
     fetchArtistAlbums();
   }, [currentUser]);
 
+  // Handle file selection and extract duration
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      
+      // Create a temporary audio element to get duration
+      const audio = new Audio();
+      audio.src = URL.createObjectURL(selectedFile);
+      audio.onloadedmetadata = () => {
+        setDuration(Math.round(audio.duration));
+        URL.revokeObjectURL(audio.src);
+      };
+    }
+  };
+
   // Redirect non-artists
   if (currentUser && currentUser.role !== 'artist') {
     return (
@@ -47,14 +65,16 @@ const Upload = ({ currentUser }) => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file || !title) {
-      setMessage('Please provide both a title and an audio file.');
+    if (!file || !title || !image) {
+      setMessage('Please provide a title, an audio file, and a cover image.');
       return;
     }
 
     const formData = new FormData();
     formData.append('title', title);
     formData.append('music', file);
+    formData.append('image', image);
+    formData.append('duration', duration); // Send calculated duration
     if (albumId) {
       formData.append('albumId', albumId);
     }
@@ -62,9 +82,11 @@ const Upload = ({ currentUser }) => {
     try {
       setLoading(true);
       setMessage('Uploading... This might take a moment.');
+      const token = localStorage.getItem('token');
       await axios.post('/api/music/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
       });
       if (albumId) {
@@ -73,6 +95,8 @@ const Upload = ({ currentUser }) => {
         setMessage('Song uploaded successfully!');
         setTitle('');
         setFile(null);
+        setImage(null);
+        setDuration(0);
         setAlbumId('');
       }
     } catch (err) {
@@ -147,23 +171,45 @@ const Upload = ({ currentUser }) => {
               </div>
             </div>
             
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Audio File</label>
-              <div className="relative group">
-                <input 
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  type="file" 
-                  accept="audio/*"
-                  onChange={(e) => setFile(e.target.files[0])} 
-                  required 
-                />
-                <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-4 group-hover:bg-white/10 group-hover:border-green-500/50 transition-all duration-300">
-                  <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all duration-300">
-                    <Music size={28} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Audio File</label>
+                <div className="relative group h-full">
+                  <input 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    type="file" 
+                    accept="audio/*"
+                    onChange={handleFileChange} 
+                    required 
+                  />
+                  <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 group-hover:bg-white/10 group-hover:border-green-500/50 transition-all duration-300 h-full">
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all duration-300">
+                      <Music size={20} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white text-xs font-bold truncate max-w-[150px]">{file ? file.name : 'Select Audio'}</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-white font-bold">{file ? file.name : 'Click to select or drag and drop'}</p>
-                    <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-black">MP3, WAV, AAC (Max 50MB)</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Cover Image</label>
+                <div className="relative group h-full">
+                  <input 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files[0])} 
+                    required 
+                  />
+                  <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 group-hover:bg-white/10 group-hover:border-green-500/50 transition-all duration-300 h-full">
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all duration-300">
+                      <Music size={20} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white text-xs font-bold truncate max-w-[150px]">{image ? image.name : 'Select Image'}</p>
+                    </div>
                   </div>
                 </div>
               </div>

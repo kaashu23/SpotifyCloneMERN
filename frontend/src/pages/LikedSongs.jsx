@@ -98,8 +98,12 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
                     </div>
                     
                     <div className="flex items-center gap-4 overflow-hidden">
-                      <div className="w-10 h-10 bg-white/5 rounded flex-shrink-0 flex items-center justify-center border border-white/5">
-                          <span className="text-[10px] font-bold text-gray-500">SONG</span>
+                      <div className="w-10 h-10 bg-white/5 rounded flex-shrink-0 flex items-center justify-center border border-white/5 overflow-hidden">
+                          {music.image ? (
+                            <img src={music.image} alt={music.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] font-bold text-gray-500">SONG</span>
+                          )}
                       </div>
                       <div className="flex flex-col truncate">
                         <span className={`truncate font-bold text-sm sm:text-base ${isActive ? 'text-green-500' : 'text-white'}`}>
@@ -123,7 +127,7 @@ const LikedSongs = ({ currentUser, playSong, currentSong, likedSongs, toggleLike
                     <div className="text-sm text-gray-400 font-medium flex justify-end items-center">
                       {music.duration 
                         ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
-                        : `3:${(music.title.length + 20).toString().padStart(2, '0').substring(0,2)}`}
+                        : "--:--"}
                     </div>
                   </div>
                 );
