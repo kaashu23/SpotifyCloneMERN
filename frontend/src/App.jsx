@@ -87,19 +87,30 @@ function App() {
     }
   };
 
+  if (loading) return (
+    <div className="flex h-screen w-full bg-[#121212] items-center justify-center">
+      <div className="w-12 h-12 border-4 border-white/10 border-t-green-500 rounded-full animate-spin"></div>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-white">
-      <div className="flex-1 overflow-y-auto relative">
-        <Routes>
-          <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
-          <Route path="/" element={<Protected loading={loading} currentUser={currentUser}><Home currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-          <Route path="/search" element={<Protected loading={loading} currentUser={currentUser}><Search currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-          <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
-          <Route path="/upload" element={<Protected loading={loading} currentUser={currentUser}><Upload currentUser={currentUser} /></Protected>} />
-          <Route path="/create-album" element={<Protected loading={loading} currentUser={currentUser}><CreateAlbum currentUser={currentUser} /></Protected>} />
-          <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} /></Protected>} />
-          <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-        </Routes>
+    <div className="flex flex-col h-screen overflow-hidden bg-black text-white relative">
+      <div className="flex flex-1 overflow-hidden">
+        {location.pathname !== '/login' && (
+          <Sidebar currentUser={currentUser} />
+        )}
+        <main className="flex-1 overflow-y-auto relative bg-[#121212]">
+          <Routes>
+            <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
+            <Route path="/" element={<Protected loading={loading} currentUser={currentUser}><Home currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+            <Route path="/search" element={<Protected loading={loading} currentUser={currentUser}><Search currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+            <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
+            <Route path="/upload" element={<Protected loading={loading} currentUser={currentUser}><Upload currentUser={currentUser} /></Protected>} />
+            <Route path="/create-album" element={<Protected loading={loading} currentUser={currentUser}><CreateAlbum currentUser={currentUser} /></Protected>} />
+            <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} /></Protected>} />
+            <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+          </Routes>
+        </main>
       </div>
       {location.pathname !== '/login' && (
         <Player currentSong={currentSong} songsQueue={songsQueue} playSong={playSong} />

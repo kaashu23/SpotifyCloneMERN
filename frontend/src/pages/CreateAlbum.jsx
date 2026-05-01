@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import { PlusSquare, Music, Check, AlertCircle } from 'lucide-react';
 
 const CreateAlbum = ({ currentUser }) => {
   const [title, setTitle] = useState('');
@@ -15,8 +15,13 @@ const CreateAlbum = ({ currentUser }) => {
     // Fetch available musics so the artist can select them for the album
     const fetchMusics = async () => {
       try {
-        const res = await axios.get('/api/music?limit=50'); // Fetch a large batch
-        setMusics(res.data.musics || []);
+        const res = await axios.get('/api/music?limit=100');
+        // Only show musics that belong to the current artist
+        const myId = currentUser.id || currentUser._id;
+        const myMusics = res.data.musics.filter(m => 
+          m.artist?._id === myId || m.artist === myId
+        );
+        setMusics(myMusics || []);
       } catch (err) {
         console.error(err);
       }
@@ -29,11 +34,13 @@ const CreateAlbum = ({ currentUser }) => {
   // Redirect non-artists
   if (currentUser && currentUser.role !== 'artist') {
     return (
-      <div className="flex h-screen bg-black">
-        <Sidebar currentUser={currentUser} />
-        <div className="flex-1 flex items-center justify-center text-white">
-          Access Denied. Only artists can create albums.
+      <div className="flex-1 flex flex-col items-center justify-center text-white bg-[#121212] p-8 text-center">
+        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+          <AlertCircle size={40} className="text-red-500" />
         </div>
+        <h2 className="text-3xl font-black mb-4 tracking-tight">Access Denied</h2>
+        <p className="text-gray-400 max-w-md">Only artists can create albums. If you're an artist, please ensure you're logged into the correct account.</p>
+        <button onClick={() => navigate('/')} className="mt-8 bg-white text-black font-black py-3 px-8 rounded-full hover:scale-105 transition-all">Go Home</button>
       </div>
     );
   }
@@ -63,6 +70,7 @@ const CreateAlbum = ({ currentUser }) => {
       setMessage('Album created successfully!');
       setTitle('');
       setSelectedMusics([]);
+      setTimeout(() => navigate('/library'), 1500);
     } catch (err) {
       setMessage(err.response?.data?.message || 'Failed to create album');
     } finally {
@@ -71,79 +79,101 @@ const CreateAlbum = ({ currentUser }) => {
   };
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden">
-      <Sidebar currentUser={currentUser} />
-      
-      <div className="flex-1 bg-gradient-to-b from-[#1e1e1e] to-[#121212] overflow-y-auto">
-        <div className="p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-white">Artist Dashboard</h2>
+    <div className="flex-1 bg-gradient-to-b from-purple-900/20 via-[#121212] to-[#121212] overflow-y-auto pb-48 md:pb-32">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Artist Dashboard</h2>
+          <button 
+            onClick={() => {
+              localStorage.removeItem('token');
+              navigate('/login');
+              window.location.reload();
+            }}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2.5 px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
+          >
+            Logout
+          </button>
+        </header>
+
+        <div className="bg-white/5 backdrop-blur-xl p-6 md:p-10 rounded-2xl shadow-2xl border border-white/5">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <PlusSquare size={32} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-3xl font-black text-white tracking-tight">Create Album</h3>
+              <p className="text-gray-400">Curate your music into a cohesive collection.</p>
+            </div>
+          </div>
+
+          {message && (
+            <div className={`p-4 rounded-xl mb-8 text-sm font-bold backdrop-blur-md border animate-in fade-in slide-in-from-top-4 duration-300 ${message.includes('successfully') ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
+              {message}
+            </div>
+          )}
+
+          <form onSubmit={handleCreateAlbum} className="flex flex-col gap-8">
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Album Title</label>
+              <input 
+                className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-purple-500 focus:bg-white/10 focus:outline-none transition-all placeholder:text-gray-600"
+                type="text" 
+                placeholder="e.g. My Greatest Hits" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)} 
+                required 
+              />
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Select Songs ({selectedMusics.length})</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {musics.length === 0 ? (
+                  <div className="col-span-full py-10 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+                    <p className="text-gray-500 italic">No songs found. Upload some music first!</p>
+                  </div>
+                ) : (
+                  musics.map((music) => {
+                    const isSelected = selectedMusics.includes(music._id);
+                    return (
+                      <div 
+                        key={music._id} 
+                        onClick={() => toggleMusicSelection(music._id)}
+                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-4 group ${isSelected ? 'bg-purple-500/20 border-purple-500/50' : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'}`}
+                      >
+                        <div className={`w-6 h-6 rounded flex items-center justify-center border transition-all ${isSelected ? 'bg-purple-500 border-purple-500' : 'bg-transparent border-white/20 group-hover:border-white/40'}`}>
+                          {isSelected && <Check size={14} className="text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-bold text-sm truncate ${isSelected ? 'text-white' : 'text-white/80'}`}>{music.title}</p>
+                          <p className="text-xs text-gray-500 truncate">Song</p>
+                        </div>
+                        <Music size={16} className={isSelected ? 'text-purple-400' : 'text-gray-600'} />
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
             <button 
-              onClick={async () => {
-                await axios.post('/api/auth/logout');
-                navigate('/login');
-              }}
-              className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
+              type="submit"
+              disabled={loading || !title}
+              className="mt-4 bg-purple-500 hover:bg-purple-400 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed text-white font-black py-4 rounded-full transition-all flex items-center justify-center gap-3 shadow-xl shadow-purple-500/20 active:scale-95"
             >
-              Logout
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  <span>Creating Collection...</span>
+                </>
+              ) : (
+                <>
+                  <PlusSquare size={20} />
+                  <span>Create Album</span>
+                </>
+              )}
             </button>
-          </div>
-
-          <div className="max-w-2xl bg-[#181818] p-8 rounded-lg shadow-xl">
-            <h3 className="text-3xl font-bold text-white mb-2">Create New Album</h3>
-            <p className="text-gray-400 mb-8">Group your songs into an album.</p>
-
-            {message && (
-              <div className={`p-4 rounded mb-6 text-sm font-bold ${message.includes('successfully') ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                {message}
-              </div>
-            )}
-
-            <form onSubmit={handleCreateAlbum} className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Album Title</label>
-                <input 
-                  className="bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors"
-                  type="text" 
-                  placeholder="E.g. The Dark Side of the Moon" 
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
-                  required 
-                />
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white mb-2">Select Songs for Album</label>
-                <div className="max-h-60 overflow-y-auto border border-gray-700 rounded p-4 bg-[#242424] flex flex-col gap-3">
-                  {musics.length === 0 ? (
-                    <p className="text-gray-400 text-sm">No songs available.</p>
-                  ) : (
-                    musics.map((music) => (
-                      <label key={music._id} className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                          type="checkbox" 
-                          className="w-5 h-5 accent-green-500 cursor-pointer"
-                          checked={selectedMusics.includes(music._id)}
-                          onChange={() => toggleMusicSelection(music._id)}
-                        />
-                        <span className="text-white group-hover:text-green-500 transition-colors">
-                          {music.title} <span className="text-gray-500 text-sm">by {music.artist?.username || 'Unknown'}</span>
-                        </span>
-                      </label>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                disabled={loading}
-                className="mt-4 bg-green-500 hover:bg-green-600 disabled:bg-green-800 disabled:text-gray-400 disabled:cursor-not-allowed text-black font-bold py-3.5 rounded-full transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? 'Creating...' : 'Create Album'}
-              </button>
-            </form>
-          </div>
+          </form>
         </div>
       </div>
     </div>

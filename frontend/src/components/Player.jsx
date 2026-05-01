@@ -101,7 +101,7 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
   if (!currentSong) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-20 md:h-24 bg-[#050505] border-t border-gray-800 text-white px-2 md:px-4 flex items-center justify-between z-[60] pb-[calc(env(safe-area-inset-bottom)+12px)] md:pb-0">
+    <div className="fixed bottom-[72px] md:bottom-0 left-0 w-full h-20 md:h-24 bg-black/80 backdrop-blur-lg border-t border-white/5 text-white px-2 md:px-6 flex items-center justify-between z-[60] transition-all duration-300">
       <audio 
         ref={audioRef} 
         src={currentSong.uri} 
@@ -111,48 +111,48 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
       />
 
       {/* Left: Song Info */}
-      <div className="flex items-center gap-2 md:gap-4 w-auto md:w-1/3 min-w-0 md:min-w-[180px]">
-        <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-700 flex-shrink-0 flex items-center justify-center rounded">
-            <span className="text-gray-400 text-[10px] md:text-xs">Art</span>
+      <div className="flex items-center gap-3 md:gap-4 w-auto md:w-1/3 min-w-0">
+        <div className="w-12 h-12 md:w-16 md:h-16 bg-white/5 flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden shadow-2xl border border-white/5">
+            <span className="text-gray-500 text-[10px] md:text-xs font-bold">SONG</span>
         </div>
         <div className="flex flex-col justify-center overflow-hidden">
-          <p className="font-bold text-xs md:text-sm truncate max-w-[100px] sm:max-w-none">{currentSong.title}</p>
-          <p className="text-[10px] md:text-xs text-gray-400 truncate max-w-[100px] sm:max-w-none">{currentSong.artist?.username || 'Unknown Artist'}</p>
+          <p className="font-bold text-sm md:text-base truncate max-w-[120px] sm:max-w-none hover:underline cursor-pointer">{currentSong.title}</p>
+          <p className="text-xs md:text-sm text-gray-400 truncate max-w-[120px] sm:max-w-none hover:text-white cursor-pointer transition-colors">{currentSong.artist?.username || 'Unknown Artist'}</p>
         </div>
-        <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
-          <Heart size={16} />
+        <button className="text-gray-400 hover:text-white transition-colors hidden sm:block ml-2">
+          <Heart size={18} />
         </button>
       </div>
       
       {/* Center: Controls */}
-      <div className="flex-1 max-w-[600px] flex flex-col items-center justify-center px-2">
-        <div className="flex items-center gap-4 md:gap-6 mb-1 md:mb-2">
+      <div className="flex-1 max-w-[600px] flex flex-col items-center justify-center px-4">
+        <div className="flex items-center gap-4 md:gap-8 mb-2">
           <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
-            <Shuffle size={16} />
+            <Shuffle size={18} />
           </button>
           
-          <button onClick={playPrev} className="text-gray-400 hover:text-white transition-colors disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
-            <SkipBack size={18} md:size={20} fill="currentColor" />
+          <button onClick={playPrev} className="text-gray-300 hover:text-white transition-all active:scale-90 disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
+            <SkipBack size={20} fill="currentColor" />
           </button>
           
           <button 
             onClick={togglePlay} 
-            className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-all text-black"
+            className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all text-black shadow-lg"
           >
-            {isPlaying ? <Pause size={18} fill="black" /> : <Play size={18} fill="black" className="ml-1" />}
+            {isPlaying ? <Pause size={20} fill="black" /> : <Play size={20} fill="black" className="ml-1" />}
           </button>
           
-          <button onClick={playNext} className="text-gray-400 hover:text-white transition-colors disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
-            <SkipForward size={18} md:size={20} fill="currentColor" />
+          <button onClick={playNext} className="text-gray-300 hover:text-white transition-all active:scale-90 disabled:opacity-30" disabled={!songsQueue || songsQueue.length <= 1}>
+            <SkipForward size={20} fill="currentColor" />
           </button>
 
           <button className="text-gray-400 hover:text-white transition-colors hidden sm:block">
-            <Repeat size={16} />
+            <Repeat size={18} />
           </button>
         </div>
         
-        <div className="w-full flex items-center gap-2 text-[10px] md:text-xs text-gray-400 font-medium">
-          <span>{formatTime(currentTime)}</span>
+        <div className="w-full flex items-center gap-3 text-[10px] md:text-xs text-gray-400 font-medium">
+          <span className="w-8 text-right">{formatTime(currentTime)}</span>
           <div className="relative flex-1 h-1 group flex items-center">
              <input 
                 type="range" 
@@ -160,25 +160,26 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
                 max={duration || 100} 
                 value={currentTime} 
                 onChange={handleSeek}
-                className="absolute w-full h-1 opacity-0 cursor-pointer z-10"
+                className="absolute w-full h-2 opacity-0 cursor-pointer z-10"
              />
-             <div className="w-full h-1 bg-gray-600 rounded-full overflow-hidden">
+             <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                  <div 
-                   className="h-full bg-white group-hover:bg-green-500 rounded-full" 
+                   className="h-full bg-white group-hover:bg-green-500 rounded-full transition-colors" 
                    style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
                  />
              </div>
+             {/* Progress handle (optional, could be added with absolute positioning) */}
           </div>
-          <span>{formatTime(duration)}</span>
+          <span className="w-8">{formatTime(duration)}</span>
         </div>
       </div>
 
       {/* Right: Volume */}
-      <div className="hidden md:flex w-1/3 justify-end items-center gap-3 pr-2">
+      <div className="hidden md:flex w-1/3 justify-end items-center gap-4 pr-2">
         <button onClick={toggleMute} className="text-gray-400 hover:text-white transition-colors">
-          {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          {isMuted ? <VolumeX size={22} /> : <Volume2 size={22} />}
         </button>
-        <div className="relative w-24 h-1 group flex items-center">
+        <div className="relative w-28 h-1 group flex items-center">
             <input 
               type="range" 
               min={0} 
@@ -186,11 +187,11 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
               step={0.01}
               value={isMuted ? 0 : volume} 
               onChange={handleVolumeChange}
-              className="absolute w-full h-1 opacity-0 cursor-pointer z-10"
+              className="absolute w-full h-2 opacity-0 cursor-pointer z-10"
             />
-            <div className="w-full h-1 bg-gray-600 rounded-full overflow-hidden">
+            <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                  <div 
-                   className="h-full bg-white group-hover:bg-green-500 rounded-full" 
+                   className="h-full bg-white group-hover:bg-green-500 rounded-full transition-colors" 
                    style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
                  />
              </div>

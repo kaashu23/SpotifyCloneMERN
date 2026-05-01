@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import { UploadCloud, Music, AlertCircle } from 'lucide-react';
 
 const Upload = ({ currentUser }) => {
   const [title, setTitle] = useState('');
@@ -17,11 +17,10 @@ const Upload = ({ currentUser }) => {
       if (currentUser?.role === 'artist') {
         try {
           const res = await axios.get('/api/music/albums');
-          // Filter down to only albums created by this artist, assuming the backend doesn't filter it for us.
-          // Wait, the backend returns all albums. We need to filter where artist._id === currentUser.id
-          // Actually res.data.albums populates artist, so album.artist._id
+          // Filter down to only albums created by this artist
+          const myId = currentUser.id || currentUser._id;
           const myAlbums = res.data.albums.filter(a => 
-            a.artist?._id === currentUser.id || a.artist === currentUser.id
+            a.artist?._id === myId || a.artist === myId
           );
           setArtistAlbums(myAlbums);
         } catch (err) {
@@ -35,11 +34,13 @@ const Upload = ({ currentUser }) => {
   // Redirect non-artists
   if (currentUser && currentUser.role !== 'artist') {
     return (
-      <div className="flex h-screen bg-black">
-        <Sidebar currentUser={currentUser} />
-        <div className="flex-1 flex items-center justify-center text-white">
-          Access Denied. Only artists can upload music.
+      <div className="flex-1 flex flex-col items-center justify-center text-white bg-[#121212] p-8 text-center">
+        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+          <AlertCircle size={40} className="text-red-500" />
         </div>
+        <h2 className="text-3xl font-black mb-4 tracking-tight">Access Denied</h2>
+        <p className="text-gray-400 max-w-md">Only artists can upload music. If you're an artist, please ensure you're logged into the correct account.</p>
+        <button onClick={() => navigate('/')} className="mt-8 bg-white text-black font-black py-3 px-8 rounded-full hover:scale-105 transition-all">Go Home</button>
       </div>
     );
   }
@@ -82,83 +83,110 @@ const Upload = ({ currentUser }) => {
   };
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden">
-      <Sidebar currentUser={currentUser} />
-      
-      <div className="flex-1 bg-gradient-to-b from-[#1e1e1e] to-[#121212] overflow-y-auto">
-        <div className="p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-white">Artist Dashboard</h2>
-            <button 
-              onClick={async () => {
-                await axios.post('/api/auth/logout');
-                navigate('/login');
-              }}
-              className="bg-black/50 hover:bg-black/80 text-white rounded-full py-2 px-4 border border-gray-600 text-sm font-bold transition-colors"
-            >
-              Logout
-            </button>
+    <div className="flex-1 bg-gradient-to-b from-orange-900/20 via-[#121212] to-[#121212] overflow-y-auto pb-48 md:pb-32">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Artist Dashboard</h2>
+          <button 
+            onClick={() => {
+              localStorage.removeItem('token');
+              navigate('/login');
+              window.location.reload();
+            }}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2.5 px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
+          >
+            Logout
+          </button>
+        </header>
+
+        <div className="bg-white/5 backdrop-blur-xl p-6 md:p-10 rounded-2xl shadow-2xl border border-white/5">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/20">
+              <UploadCloud size={32} className="text-black" />
+            </div>
+            <div>
+              <h3 className="text-3xl font-black text-white tracking-tight">Upload a Song</h3>
+              <p className="text-gray-400">Share your latest masterpiece with the world.</p>
+            </div>
           </div>
 
-          <div className="max-w-2xl bg-[#181818] p-8 rounded-lg shadow-xl">
-            <h3 className="text-3xl font-bold text-white mb-2">Upload a Song</h3>
-            <p className="text-gray-400 mb-8">Share your music with the world.</p>
+          {message && (
+            <div className={`p-4 rounded-xl mb-8 text-sm font-bold backdrop-blur-md border animate-in fade-in slide-in-from-top-4 duration-300 ${message.includes('successfully') ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
+              {message}
+            </div>
+          )}
 
-            {message && (
-              <div className={`p-4 rounded mb-6 text-sm font-bold ${message.includes('successfully') ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                {message}
-              </div>
-            )}
-
-            <form onSubmit={handleUpload} className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Song Title</label>
+          <form onSubmit={handleUpload} className="flex flex-col gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Song Title</label>
                 <input 
-                  className="bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors"
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-green-500 focus:bg-white/10 focus:outline-none transition-all placeholder:text-gray-600"
                   type="text" 
-                  placeholder="E.g. Shape of You" 
+                  placeholder="e.g. Moonlight Sonata" 
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)} 
                   required 
                 />
               </div>
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Audio File (MP3, WAV)</label>
-                <input 
-                  className="bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-500 file:text-black hover:file:bg-green-600 cursor-pointer"
-                  type="file" 
-                  accept="audio/*"
-                  onChange={(e) => setFile(e.target.files[0])} 
-                  required 
-                />
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Add to Album (Optional)</label>
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Add to Album</label>
                 <select 
-                  className="bg-[#242424] border border-gray-600 rounded p-3 text-white focus:border-white focus:outline-none transition-colors"
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-green-500 focus:bg-white/10 focus:outline-none transition-all appearance-none"
                   value={albumId}
                   onChange={(e) => setAlbumId(e.target.value)}
                 >
-                  <option value="">-- Do not add to any album --</option>
+                  <option value="" className="bg-[#121212]">Single (No Album)</option>
                   {artistAlbums.map(album => (
-                    <option key={album._id} value={album._id}>
+                    <option key={album._id} value={album._id} className="bg-[#121212]">
                       {album.title}
                     </option>
                   ))}
                 </select>
               </div>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-black text-white/70 uppercase tracking-widest ml-1">Audio File</label>
+              <div className="relative group">
+                <input 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  type="file" 
+                  accept="audio/*"
+                  onChange={(e) => setFile(e.target.files[0])} 
+                  required 
+                />
+                <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-4 group-hover:bg-white/10 group-hover:border-green-500/50 transition-all duration-300">
+                  <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all duration-300">
+                    <Music size={28} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-bold">{file ? file.name : 'Click to select or drag and drop'}</p>
+                    <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-black">MP3, WAV, AAC (Max 50MB)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <button 
-                type="submit"
-                disabled={loading}
-                className="mt-4 bg-green-500 hover:bg-green-600 disabled:bg-green-800 disabled:text-gray-400 disabled:cursor-not-allowed text-black font-bold py-3.5 rounded-full transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? 'Uploading...' : 'Upload to Spotify'}
-              </button>
-            </form>
-          </div>
+            <button 
+              type="submit"
+              disabled={loading}
+              className="mt-4 bg-green-500 hover:bg-green-400 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed text-black font-black py-4 rounded-full transition-all flex items-center justify-center gap-3 shadow-xl shadow-green-500/20 active:scale-95"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                  <span>Uploading to Servers...</span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud size={20} />
+                  <span>Publish Song</span>
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </div>
     </div>
