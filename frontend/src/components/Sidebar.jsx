@@ -55,23 +55,34 @@ const Sidebar = ({ currentUser }) => {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/60 backdrop-blur-lg border-t border-white/5 flex justify-around items-center py-3 z-50 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)]">
-        <Link to="/" className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('/') ? 'text-white scale-110' : 'text-gray-400 hover:text-white'}`}>
-          <Home size={22} fill={isActive('/') ? 'currentColor' : 'none'} />
-          <span className="text-[10px] font-medium">Home</span>
+      {/* Mobile Bottom Navigation - Enhanced UI */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[72px] bg-gradient-to-t from-black via-black/95 to-black/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center z-[100] px-4 pb-safe">
+        <Link to="/" className={`flex flex-col items-center justify-center gap-1.5 w-16 transition-all duration-300 ${isActive('/') ? 'text-white' : 'text-gray-500'}`}>
+          <div className={`p-1 rounded-full transition-all ${isActive('/') ? 'scale-110' : ''}`}>
+            <Home size={24} strokeWidth={isActive('/') ? 2.5 : 2} />
+          </div>
+          <span className={`text-[10px] font-bold tracking-tight ${isActive('/') ? 'opacity-100' : 'opacity-60'}`}>Home</span>
         </Link>
-        <Link to="/search" className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('/search') ? 'text-white scale-110' : 'text-gray-400 hover:text-white'}`}>
-          <Search size={22} strokeWidth={isActive('/search') ? 3 : 2} />
-          <span className="text-[10px] font-medium">Search</span>
+        
+        <Link to="/search" className={`flex flex-col items-center justify-center gap-1.5 w-16 transition-all duration-300 ${isActive('/search') ? 'text-white' : 'text-gray-500'}`}>
+          <div className={`p-1 rounded-full transition-all ${isActive('/search') ? 'scale-110' : ''}`}>
+            <Search size={24} strokeWidth={isActive('/search') ? 2.5 : 2} />
+          </div>
+          <span className={`text-[10px] font-bold tracking-tight ${isActive('/search') ? 'opacity-100' : 'opacity-60'}`}>Search</span>
         </Link>
-        <Link to="/library" className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('/library') ? 'text-white scale-110' : 'text-gray-400 hover:text-white'}`}>
-          <Library size={22} fill={isActive('/library') ? 'currentColor' : 'none'} />
-          <span className="text-[10px] font-medium">Library</span>
+        
+        <Link to="/library" className={`flex flex-col items-center justify-center gap-1.5 w-16 transition-all duration-300 ${isActive('/library') ? 'text-white' : 'text-gray-500'}`}>
+          <div className={`p-1 rounded-full transition-all ${isActive('/library') ? 'scale-110' : ''}`}>
+            <Library size={24} strokeWidth={isActive('/library') ? 2.5 : 2} />
+          </div>
+          <span className={`text-[10px] font-bold tracking-tight ${isActive('/library') ? 'opacity-100' : 'opacity-60'}`}>Library</span>
         </Link>
-        <Link to="/liked" className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('/liked') ? 'text-white scale-110' : 'text-gray-400 hover:text-white'}`}>
-          <Heart size={22} fill={isActive('/liked') ? 'currentColor' : 'none'} />
-          <span className="text-[10px] font-medium">Liked</span>
+        
+        <Link to="/liked" className={`flex flex-col items-center justify-center gap-1.5 w-16 transition-all duration-300 ${isActive('/liked') ? 'text-white' : 'text-gray-500'}`}>
+          <div className={`p-1 rounded-full transition-all ${isActive('/liked') ? 'scale-110' : ''}`}>
+            <Heart size={24} strokeWidth={isActive('/liked') ? 2.5 : 2} fill={isActive('/liked') ? 'currentColor' : 'none'} />
+          </div>
+          <span className={`text-[10px] font-bold tracking-tight ${isActive('/liked') ? 'opacity-100' : 'opacity-60'}`}>Liked</span>
         </Link>
       </div>
     </>
