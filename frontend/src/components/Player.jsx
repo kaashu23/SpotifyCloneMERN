@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Shuffle, Repeat, Heart, ChevronDown, ListMusic } from 'lucide-react';
 
-const Player = ({ currentSong, songsQueue, playSong }) => {
+const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -104,6 +104,8 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
 
   if (!currentSong) return null;
 
+  const isLiked = likedSongs?.includes(currentSong._id);
+
   return (
     <>
       <audio 
@@ -133,8 +135,11 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-purple-300/40 hover:text-white transition-colors active:scale-90">
-            <Heart size={22} />
+          <button 
+            onClick={(e) => { e.stopPropagation(); toggleLike(currentSong._id); }}
+            className={`transition-all active:scale-125 ${isLiked ? 'text-green-500' : 'text-white/40 hover:text-white'}`}
+          >
+            <Heart size={22} fill={isLiked ? "currentColor" : "none"} />
           </button>
           <button 
             onClick={togglePlay}
@@ -184,8 +189,11 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
               <h2 className="text-3xl font-black text-white truncate leading-tight tracking-tighter">{currentSong.title}</h2>
               <p className="text-xl font-bold text-purple-300/50 truncate mt-1">{currentSong.artist?.username || 'Unknown Artist'}</p>
             </div>
-            <button className="text-purple-300/30 hover:text-purple-400 transition-all active:scale-125 mb-1">
-              <Heart size={32} />
+            <button 
+              onClick={() => toggleLike(currentSong._id)}
+              className={`transition-all active:scale-125 mb-1 ${isLiked ? 'text-green-500' : 'text-purple-300/30 hover:text-purple-400'}`}
+            >
+              <Heart size={32} fill={isLiked ? "currentColor" : "none"} />
             </button>
           </div>
 
@@ -252,8 +260,11 @@ const Player = ({ currentSong, songsQueue, playSong }) => {
             <p className="font-black text-[15px] truncate hover:underline cursor-pointer tracking-tight">{currentSong.title}</p>
             <p className="text-[13px] font-bold text-white/50 truncate hover:text-white cursor-pointer transition-colors mt-0.5 tracking-tight">{currentSong.artist?.username || 'Unknown Artist'}</p>
           </div>
-          <button className="text-white/20 hover:text-green-500 transition-all ml-4 active:scale-125">
-            <Heart size={20} />
+          <button 
+            onClick={() => toggleLike(currentSong._id)}
+            className={`transition-all ml-4 active:scale-125 ${isLiked ? 'text-green-500' : 'text-white/20 hover:text-green-500'}`}
+          >
+            <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
           </button>
         </div>
         
