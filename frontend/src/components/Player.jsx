@@ -10,6 +10,29 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
   const [isMuted, setIsMuted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Swipe-to-dismiss state
+  const touchStartY = useRef(0);
+  const [dragOffset, setDragOffset] = useState(0);
+
+  const handleTouchStart = (e) => {
+    touchStartY.current = e.touches[0].screenY;
+  };
+
+  const handleTouchMove = (e) => {
+    const currentY = e.touches[0].screenY;
+    const diff = currentY - touchStartY.current;
+    if (diff > 0) {
+      setDragOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragOffset > 100) {
+      setIsExpanded(false);
+    }
+    setDragOffset(0);
+  };
+
   useEffect(() => {
     if (currentSong && audioRef.current) {
       audioRef.current.play()
@@ -159,7 +182,16 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
       </div>
 
       {/* MOBILE FULLSCREEN PLAYER - Purple Immersive Experience */}
-      <div className={`md:hidden fixed inset-0 bg-gradient-to-b from-[#2e1d4b] via-[#12101d] to-black z-[110] transition-all duration-500 ease-out flex flex-col p-8 pb-safe ${isExpanded ? 'translate-y-0' : 'translate-y-full'}`}>
+      <div 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ 
+          transform: isExpanded ? `translateY(${dragOffset}px)` : 'translateY(100%)',
+          transition: dragOffset > 0 ? 'none' : 'transform 0.5s cubic-bezier(0, 0, 0.2, 1), opacity 0.5s ease-out'
+        }}
+        className={`md:hidden fixed inset-0 bg-gradient-to-b from-[#2e1d4b] via-[#12101d] to-black z-[110] flex flex-col p-8 pb-safe ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      >
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.2),transparent_70%)] pointer-events-none" />
         
         <header className="flex justify-between items-center mb-12 relative z-10">
@@ -223,7 +255,6 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
           </div>
         </div>
 
-        {/* Updated Control Sizes for Mobile */}
         <div className="w-full flex items-center justify-between max-w-[320px] mx-auto mt-auto mb-8 relative z-10 px-4">
           <button className="text-purple-300/30 hover:text-white transition-colors">
             <Shuffle size={20} />
