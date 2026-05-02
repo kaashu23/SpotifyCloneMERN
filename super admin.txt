@@ -1,4 +1,0 @@
-add admin who can handle all artist data like delete song,album and change image of album,song 
-the admin email is kashishsalvi06@gmail.com and password is kashish 
-only this this admin can have all access
-if admin login with its credentials it home page like users but add an admin panel below liked songs for handle all feaures
