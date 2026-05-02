@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Trash2, Image as ImageIcon, Music, Layout, AlertCircle, Check, ShieldCheck } from 'lucide-react';
+import { Trash2, Edit, Music, Disc, Loader2 } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ManageContent = ({ currentUser }) => {
   const [content, setContent] = useState({ albums: [], musics: [] });
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
-
-  const isAdmin = currentUser?.role === 'admin';
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, type: '', data: null });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchContent = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const endpoint = isAdmin ? '/api/music/admin/content' : '/api/music/artist/content';
-      const res = await axios.get(endpoint, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const endpoint = currentUser.role === 'admin' ? '/api/music/admin/all' : '/api/music/artist/all';
+      const res = await axios.get(endpoint);
       setContent(res.data);
     } catch (err) {
       console.error(err);
@@ -27,203 +22,122 @@ const ManageContent = ({ currentUser }) => {
   };
 
   useEffect(() => {
-    if (currentUser?.role === 'artist' || currentUser?.role === 'admin') {
+    if (currentUser) {
       fetchContent();
-    } else if (currentUser) {
-      navigate('/');
     }
-  }, [currentUser, isAdmin]);
+  }, [currentUser]);
 
-  const handleDeleteSong = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this song?')) return;
+  const handleDeleteMusic = async (musicId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/api/music/song/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setMessage('Song deleted successfully!');
+      setIsDeleting(true);
+      await axios.delete(`/api/music/${musicId}`);
       fetchContent();
     } catch (err) {
-      setMessage('Failed to delete song');
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleDeleteAlbum = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this album? (Songs will not be deleted)')) return;
+  const handleDeleteAlbum = async (albumId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/api/music/album/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setMessage('Album deleted successfully!');
+      setIsDeleting(true);
+      await axios.delete(`/api/music/album/${albumId}`);
       fetchContent();
     } catch (err) {
-      setMessage('Failed to delete album');
-    }
-  };
-
-  const handleUpdateAlbumImage = async (albumId, file) => {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('image', file);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/music/album/image/${albumId}`, formData, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      setMessage('Album image updated!');
-      fetchContent();
-    } catch (err) {
-      setMessage('Failed to update album image');
-    }
-  };
-
-  const handleUpdateSongImage = async (musicId, file) => {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('image', file);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/api/music/song/image/${musicId}`, formData, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      setMessage('Song image updated!');
-      fetchContent();
-    } catch (err) {
-      setMessage('Failed to update song image');
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   if (loading) return (
-    <div className="flex-1 flex h-full bg-[#121212] items-center justify-center">
-       <div className="w-12 h-12 border-4 border-white/10 border-t-green-500 rounded-full animate-spin"></div>
+    <div className="flex h-screen items-center justify-center bg-[#121212]">
+      <div className="w-12 h-12 border-4 border-white/10 border-t-green-500 rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-gray-900 via-[#121212] to-[#121212] overflow-y-auto pb-48 md:pb-32">
-      <div className="p-4 md:p-8 max-w-6xl mx-auto">
-        <header className="mb-12">
-          <div className="flex items-center gap-3">
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-              {isAdmin ? 'Admin Dashboard' : 'Manage Your Content'}
-            </h2>
-            {isAdmin && <ShieldCheck className="text-green-500" size={32} />}
-          </div>
-          <p className="text-gray-400 mt-2">
-            {isAdmin ? 'Global content management for all artists.' : 'Update artwork or remove songs from your catalog.'}
-          </p>
-        </header>
+    <div className="p-8 bg-[#121212] min-h-screen text-white pb-32">
+      <header className="mb-12">
+        <h1 className="text-4xl font-black tracking-tight">Manage Your Content</h1>
+        <p className="text-gray-400 mt-2">View and manage the songs and albums you've uploaded.</p>
+      </header>
 
-        {message && (
-          <div className="p-4 rounded-xl mb-8 bg-white/5 border border-white/10 text-green-500 flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
-            <Check size={20} />
-            <span className="font-bold">{message}</span>
-            <button onClick={() => setMessage('')} className="ml-auto text-gray-500 hover:text-white">✕</button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Songs Section */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <Music className="text-green-500" />
+            <h2 className="text-2xl font-bold">Your Songs</h2>
           </div>
-        )}
-
-        <div className="space-y-16">
-          {/* Albums Section */}
-          <section>
-            <div className="flex items-center gap-3 mb-8">
-              <Layout className="text-purple-500" size={28} />
-              <h3 className="text-2xl font-black text-white">{isAdmin ? 'All Albums' : 'Your Albums'}</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {content.albums.map(album => (
-                <div key={album._id} className="bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-all group">
-                  <div className="relative aspect-square rounded-xl overflow-hidden mb-4 shadow-2xl">
-                    <img src={album.image} alt={album.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
-                      <label className="cursor-pointer bg-white text-black font-bold py-2 px-4 rounded-full hover:scale-105 transition-all text-sm flex items-center gap-2">
-                        <ImageIcon size={16} />
-                        Change Cover
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpdateAlbumImage(album._id, e.target.files[0])} />
-                      </label>
-                      <button 
-                        onClick={() => handleDeleteAlbum(album._id)}
-                        className="p-2 bg-red-500 text-white rounded-full hover:scale-110 transition-all shadow-lg active:scale-95"
-                        title="Delete Album"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                  <h4 className="font-bold text-white text-lg truncate">{album.title}</h4>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-gray-500 text-sm">{album.musics.length} songs</p>
-                    {isAdmin && <p className="text-green-500 text-xs font-bold truncate ml-2">By: {album.artist?.username}</p>}
+          <div className="space-y-3">
+            {content.musics.map((music) => (
+              <div key={music._id} className="bg-white/5 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-all border border-white/5">
+                <div className="flex items-center gap-4 min-w-0">
+                  <img src={music.image} alt={music.title} className="w-12 h-12 object-cover rounded shadow-lg" />
+                  <div className="min-w-0">
+                    <h3 className="font-bold truncate">{music.title}</h3>
+                    {currentUser.role === 'admin' && <p className="text-xs text-gray-400 truncate">Artist: {music.artist?.username}</p>}
                   </div>
                 </div>
-              ))}
-              {content.albums.length === 0 && <p className="text-gray-500 italic">No albums found.</p>}
-            </div>
-          </section>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 text-gray-400 hover:text-white transition-colors"><Edit size={18} /></button>
+                  <button 
+                    onClick={() => setDeleteModal({ isOpen: true, type: 'song', data: music })}
+                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {content.musics.length === 0 && <p className="text-gray-500 italic">No songs found.</p>}
+          </div>
+        </section>
 
-          {/* Songs Section */}
-          <section>
-            <div className="flex items-center gap-3 mb-8">
-              <Music className="text-green-500" size={28} />
-              <h3 className="text-2xl font-black text-white">{isAdmin ? 'All Songs' : 'Your Songs'}</h3>
-            </div>
-            <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
-                    <th className="p-5 font-black">#</th>
-                    <th className="p-5 font-black">Song</th>
-                    {isAdmin && <th className="p-5 font-black">Artist</th>}
-                    <th className="p-5 font-black">Artwork</th>
-                    <th className="p-5 font-black text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {content.musics.map((music, idx) => (
-                    <tr key={music._id} className="hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group">
-                      <td className="p-5 text-gray-500 text-sm">{idx + 1}</td>
-                      <td className="p-5">
-                        <p className="font-bold text-white text-sm">{music.title}</p>
-                        <p className="text-gray-500 text-xs">Single</p>
-                      </td>
-                      {isAdmin && (
-                        <td className="p-5">
-                          <p className="text-green-500 text-xs font-bold">{music.artist?.username}</p>
-                        </td>
-                      )}
-                      <td className="p-5">
-                        <div className="relative w-12 h-12 rounded overflow-hidden group-artwork">
-                          <img src={music.image} alt="" className="w-full h-full object-cover" />
-                          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-all">
-                            <ImageIcon size={14} className="text-white" />
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpdateSongImage(music._id, e.target.files[0])} />
-                          </label>
-                        </div>
-                      </td>
-                      <td className="p-5 text-right">
-                        <button 
-                          onClick={() => handleDeleteSong(music._id)}
-                          className="p-2.5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all active:scale-90"
-                          title="Delete Song"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {content.musics.length === 0 && <div className="p-10 text-center text-gray-500 italic">No songs found.</div>}
-            </div>
-          </section>
-        </div>
+        {/* Albums Section */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <Disc className="text-green-500" />
+            <h2 className="text-2xl font-bold">Your Albums</h2>
+          </div>
+          <div className="space-y-3">
+            {content.albums.map((album) => (
+              <div key={album._id} className="bg-white/5 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-all border border-white/5">
+                <div className="flex items-center gap-4 min-w-0">
+                  <img src={album.image} alt={album.title} className="w-12 h-12 object-cover rounded shadow-lg" />
+                  <div className="min-w-0">
+                    <h3 className="font-bold truncate">{album.title}</h3>
+                    <p className="text-xs text-gray-400">{album.musics?.length || 0} songs</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 text-gray-400 hover:text-white transition-colors"><Edit size={18} /></button>
+                  <button 
+                    onClick={() => setDeleteModal({ isOpen: true, type: 'album', data: album })}
+                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {content.albums.length === 0 && <p className="text-gray-500 italic">No albums found.</p>}
+          </div>
+        </section>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={deleteModal.isOpen}
+        title={deleteModal.type === 'song' ? 'Delete Song' : 'Delete Album'}
+        message={deleteModal.type === 'song' 
+          ? `Are you sure you want to delete "${deleteModal.data?.title}"? This cannot be undone.` 
+          : `Are you sure you want to delete "${deleteModal.data?.title}"? The songs inside will not be deleted.`}
+        onConfirm={() => deleteModal.type === 'song' ? handleDeleteMusic(deleteModal.data?._id) : handleDeleteAlbum(deleteModal.data?._id)}
+        onCancel={() => setDeleteModal({ isOpen: false, type: '', data: null })}
+      />
     </div>
   );
 };

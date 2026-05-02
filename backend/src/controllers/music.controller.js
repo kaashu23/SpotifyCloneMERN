@@ -210,9 +210,15 @@ async function getAllMusics(req, res) {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
+        const searchQuery = req.query.search;
+
+        let filter = {};
+        if (searchQuery) {
+            filter.title = { $regex: searchQuery, $options: 'i' };
+        }
 
         const musics = await musicModel
-        .find()
+        .find(filter)
         .skip(skip)
         .limit(limit)
         .populate("artist");

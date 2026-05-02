@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 const musicRoutes = require('./routes/music.routes');
+const playlistRoutes = require('./routes/playlist.routes');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -32,5 +33,6 @@ app.get("/", (req, res) => {
 
 app.use('/api/auth',authRoutes);
 app.use('/api/music',musicRoutes);
+app.use('/api/playlist',playlistRoutes);
 
 module.exports = app;

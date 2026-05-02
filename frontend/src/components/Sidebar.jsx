@@ -1,10 +1,14 @@
-import React from 'react';
-import { Home, Search, Library, PlusSquare, Heart, UploadCloud, Settings, ShieldCheck } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Home, Search, Library, PlusSquare, Heart, UploadCloud, Settings, ShieldCheck, Plus, Trash2 } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import ConfirmModal from './ConfirmModal';
 
-const Sidebar = ({ currentUser }) => {
+const Sidebar = ({ currentUser, playlists, fetchPlaylists }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = (path) => location.pathname === path;
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, playlistId: null, playlistName: '' });
 
   const NavLink = ({ to, icon: Icon, children, active }) => (
     <Link 
@@ -15,6 +19,30 @@ const Sidebar = ({ currentUser }) => {
       <span className="font-bold hidden lg:inline">{children}</span>
     </Link>
   );
+
+  const createPlaylist = async () => {
+    try {
+      const name = `My Playlist #${(playlists?.length || 0) + 1}`;
+      const res = await axios.post('/api/playlist', { name });
+      fetchPlaylists();
+      navigate(`/playlist/${res.data.playlist._id}`);
+    } catch (err) {
+      console.error("Failed to create playlist", err);
+    }
+  };
+
+  const handleDeletePlaylist = async () => {
+    if (!deleteModal.playlistId) return;
+    try {
+      await axios.delete(`/api/playlist/${deleteModal.playlistId}`);
+      fetchPlaylists();
+      if (location.pathname === `/playlist/${deleteModal.playlistId}`) {
+        navigate('/library');
+      }
+    } catch (err) {
+      console.error("Failed to delete playlist", err);
+    }
+  };
 
   return (
     <>
@@ -34,6 +62,16 @@ const Sidebar = ({ currentUser }) => {
         </nav>
 
         <div className="space-y-2 mb-8 border-t border-white/5 pt-6 lg:px-2">
+          <button 
+            onClick={createPlaylist}
+            className="flex items-center gap-4 transition-all duration-300 cursor-pointer py-2 px-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 w-full text-left"
+          >
+            <div className="bg-gray-400/20 p-1 rounded-sm group-hover:bg-white/10 transition-colors">
+                <Plus size={20} />
+            </div>
+            <span className="font-bold hidden lg:inline">Create Playlist</span>
+          </button>
+
           {currentUser?.role === 'artist' && (
             <NavLink to="/create-album" icon={PlusSquare} active={isActive('/create-album')}>Create Album</NavLink>
           )}
@@ -53,10 +91,32 @@ const Sidebar = ({ currentUser }) => {
         
         <div className="flex-1 overflow-y-auto space-y-4 text-sm lg:px-2 hidden lg:block scrollbar-hide">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Playlists</p>
-          <p className="hover:text-white cursor-pointer truncate transition-colors">Chill Vibes</p>
-          <p className="hover:text-white cursor-pointer truncate transition-colors">Focus</p>
-          <p className="hover:text-white cursor-pointer truncate transition-colors">Workout Mix</p>
-          <p className="hover:text-white cursor-pointer truncate transition-colors">Discover Weekly</p>
+          <div className="flex flex-col gap-2">
+            {playlists?.map((playlist) => (
+              <div key={playlist._id} className="group relative flex items-center min-w-0">
+                <Link 
+                    to={`/playlist/${playlist._id}`}
+                    className={`flex-1 hover:text-white cursor-pointer truncate transition-colors py-1.5 min-w-0 pr-2 ${isActive(`/playlist/${playlist._id}`) ? 'text-white font-bold' : 'text-gray-400'}`}
+                >
+                    {playlist.name}
+                </Link>
+                <button 
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteModal({ isOpen: true, playlistId: playlist._id, playlistName: playlist.name });
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-red-500 transition-all shrink-0"
+                    title="Delete Playlist"
+                >
+                    <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+            {(!playlists || playlists.length === 0) && (
+              <p className="text-xs text-gray-500 italic py-2">No playlists yet</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -90,6 +150,14 @@ const Sidebar = ({ currentUser }) => {
           <span className={`text-[10px] font-bold tracking-tight ${isActive('/liked') ? 'opacity-100' : 'opacity-60'}`}>Liked</span>
         </Link>
       </div>
+
+      <ConfirmModal 
+        isOpen={deleteModal.isOpen}
+        title="Delete Playlist"
+        message={`Delete "${deleteModal.playlistName}"? This action cannot be undone.`}
+        onConfirm={handleDeletePlaylist}
+        onCancel={() => setDeleteModal({ isOpen: false, playlistId: null, playlistName: '' })}
+      />
     </>
   );
 };

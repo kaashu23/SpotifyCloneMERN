@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Play, Clock, Heart } from 'lucide-react';
+import PlaylistMenu from '../components/PlaylistMenu';
 
-const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike }) => {
+const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike, playlists, updatePlaylistInState }) => {
   const [musics, setMusics] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [page, setPage] = useState(1);
@@ -144,7 +145,7 @@ const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, 
         <section>
           <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">All Songs</h3>
           
-          <div className="text-gray-500 text-[10px] font-black border-b border-white/5 pb-2 mb-4 grid grid-cols-[16px_minmax(0,1fr)_40px_80px] sm:grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-4 px-4 uppercase tracking-widest">
+          <div className="text-gray-500 text-[10px] font-black border-b border-white/5 pb-2 mb-4 grid grid-cols-[16px_minmax(0,1fr)_40px_80px] sm:grid-cols-[16px_minmax(0,1fr)_80px_120px] gap-4 px-4 uppercase tracking-widest">
              <div className="flex justify-center">#</div>
              <div>Title</div>
              <div></div>
@@ -158,7 +159,7 @@ const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, 
               return (
                 <div 
                   key={music._id} 
-                  className={`group flex items-center grid grid-cols-[16px_minmax(0,1fr)_40px_80px] sm:grid-cols-[16px_minmax(0,1fr)_40px_120px] gap-4 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer ${isActive ? 'bg-white/10' : ''}`}
+                  className={`group flex items-center grid grid-cols-[16px_minmax(0,1fr)_40px_80px] sm:grid-cols-[16px_minmax(0,1fr)_80px_120px] gap-4 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer ${isActive ? 'bg-white/10' : ''}`}
                   onClick={() => playSong(music, musics)}
                 >
                   <div className="text-gray-500 flex items-center justify-center w-4 h-4 text-sm font-medium">
@@ -194,13 +195,14 @@ const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, 
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center gap-2">
                     <button 
                       onClick={(e) => { e.stopPropagation(); toggleLike(music._id); }} 
                       className={`focus:outline-none transition-all hover:scale-110 active:scale-90 ${isLiked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                     >
                       <Heart size={18} className={isLiked ? "text-green-500" : "text-gray-400 hover:text-white"} fill={isLiked ? "currentColor" : "none"} />
                     </button>
+                    <PlaylistMenu musicId={music._id} playlists={playlists} updatePlaylistInState={updatePlaylistInState} />
                   </div>
 
                   <div className="text-sm text-gray-400 font-medium flex justify-end items-center w-20">

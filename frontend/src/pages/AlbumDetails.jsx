@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Play, Heart, Clock, MoreHorizontal } from 'lucide-react';
+import PlaylistMenu from '../components/PlaylistMenu';
 
-const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike, savedAlbums, toggleSaveAlbum }) => {
+const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike, savedAlbums, toggleSaveAlbum, playlists, updatePlaylistInState }) => {
   const { albumId } = useParams();
   const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, like
       </header>
 
       {/* Controls Bar */}
-      <div className="px-4 md:px-8 py-6 md:py-8 flex items-center justify-between sticky top-0 z-10 bg-transparent transition-all duration-300" id="controls-bar">
+      <div className="px-4 md:px-8 py-6 md:py-8 flex items-center justify-between sticky top-0 z-10 bg-[#121212]/80 backdrop-blur-md transition-all duration-300" id="controls-bar">
         <div className="flex items-center gap-4 md:gap-8">
           <button 
             onClick={() => album.musics?.length > 0 && playSong(album.musics[0], album.musics)}
@@ -150,13 +151,14 @@ const AlbumDetails = ({ currentUser, setCurrentUser, playSong, currentSong, like
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center gap-2">
                   <button 
                     onClick={(e) => { e.stopPropagation(); toggleLike(music._id); }} 
                     className={`focus:outline-none transition-all hover:scale-110 active:scale-90 ${isLiked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                   >
                     <Heart size={18} className={isLiked ? "text-green-500" : "text-gray-400 hover:text-white"} fill={isLiked ? "currentColor" : "none"} />
                   </button>
+                  <PlaylistMenu musicId={music._id} playlists={playlists} updatePlaylistInState={updatePlaylistInState} />
                 </div>
 
                 <div className="text-sm text-gray-400 font-medium flex justify-end items-center w-20">

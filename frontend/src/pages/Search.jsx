@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search as SearchIcon, Play } from 'lucide-react';
+import { Search as SearchIcon, Play, Clock, Heart } from 'lucide-react';
+import PlaylistMenu from '../components/PlaylistMenu';
 
-const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike }) => {
+const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, toggleLike, playlists, updatePlaylistInState }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [albums, setAlbums] = useState([]);
+  const [musics, setMusics] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const fetchAlbums = async (query = '') => {
+  const fetchResults = async (query = '') => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/music/albums?search=${encodeURIComponent(query)}`);
-      setAlbums(res.data.albums || []);
+      const [albumsRes, musicsRes] = await Promise.all([
+        axios.get(`/api/music/albums?search=${encodeURIComponent(query)}`),
+        axios.get(`/api/music?search=${encodeURIComponent(query)}&limit=10`)
+      ]);
+      setAlbums(albumsRes.data.albums || []);
+      setMusics(musicsRes.data.musics || []);
     } catch (err) {
-      console.error("Fetch albums search error:", err);
+      console.error("Search error:", err);
     } finally {
       setLoading(false);
     }
@@ -24,7 +30,7 @@ const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs
   // Debounce search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchAlbums(searchQuery);
+      fetchResults(searchQuery);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
@@ -58,9 +64,77 @@ const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs
           </button>
         </header>
 
+        {searchQuery && musics.length > 0 && (
+          <section className="mb-12">
+            <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Songs</h3>
+            <div className="flex flex-col gap-1">
+              {musics.map((music, index) => {
+                const isLiked = likedSongs?.includes(music._id);
+                const isActive = currentSong?._id === music._id;
+                return (
+                  <div 
+                    key={music._id} 
+                    className={`group flex items-center grid grid-cols-[16px_minmax(0,1fr)_80px_120px] gap-4 px-4 py-2.5 rounded-lg hover:bg-white/5 transition-all cursor-pointer ${isActive ? 'bg-white/10' : ''}`}
+                    onClick={() => playSong(music, musics)}
+                  >
+                    <div className="text-gray-500 flex items-center justify-center w-4 h-4 text-sm font-medium">
+                      {!isActive ? (
+                        <>
+                          <span className="group-hover:hidden">{index + 1}</span>
+                          <Play size={14} className="hidden group-hover:block text-white" fill="currentColor" />
+                        </>
+                      ) : (
+                        <div className="flex items-end gap-0.5 h-3">
+                          <div className="w-0.5 h-full bg-green-500 animate-[music-bar_0.6s_ease-in-out_infinite]" />
+                          <div className="w-0.5 h-2/3 bg-green-500 animate-[music-bar_0.8s_ease-in-out_infinite]" />
+                          <div className="w-0.5 h-1/2 bg-green-500 animate-[music-bar_0.5s_ease-in-out_infinite]" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 overflow-hidden">
+                      <div className="w-10 h-10 bg-white/5 rounded flex-shrink-0 flex items-center justify-center border border-white/5 overflow-hidden">
+                          {music.image ? (
+                            <img src={music.image} alt={music.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] font-bold text-gray-500">SONG</span>
+                          )}
+                      </div>
+                      <div className="flex flex-col truncate">
+                        <span className={`truncate font-bold text-sm sm:text-base ${isActive ? 'text-green-500' : 'text-white'}`}>
+                          {music.title}
+                        </span>
+                        <span className="text-xs text-gray-400 truncate group-hover:text-white transition-colors">
+                          {music.artist?.username || 'Unknown Artist'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); toggleLike(music._id); }} 
+                        className={`focus:outline-none transition-all hover:scale-110 active:scale-90 ${isLiked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                      >
+                        <Heart size={18} className={isLiked ? "text-green-500" : "text-gray-400 hover:text-white"} fill={isLiked ? "currentColor" : "none"} />
+                      </button>
+                      <PlaylistMenu musicId={music._id} playlists={playlists} updatePlaylistInState={updatePlaylistInState} />
+                    </div>
+
+                    <div className="text-sm text-gray-400 font-medium flex justify-end items-center w-20">
+                       {music.duration > 0 
+                         ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}` 
+                         : "--:--"}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="mb-10">
           <h3 className="text-2xl font-bold text-white mb-8 tracking-tight">
-            {searchQuery ? `Search Results for "${searchQuery}"` : 'Browse All Albums'}
+            {searchQuery ? `Albums` : 'Browse All Albums'}
           </h3>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
@@ -84,9 +158,9 @@ const Search = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs
                   <p className="text-xs text-gray-400 truncate">{album.artist?.username || 'Unknown Artist'}</p>
                 </Link>
               ))}
-              {albums.length === 0 && !loading && (
+              {albums.length === 0 && musics.length === 0 && !loading && (
                 <div className="col-span-full py-20 text-center">
-                  <p className="text-gray-400 text-lg font-medium italic">No albums found matching your search.</p>
+                  <p className="text-gray-400 text-lg font-medium italic">No results found matching your search.</p>
                 </div>
               )}
               {loading && (

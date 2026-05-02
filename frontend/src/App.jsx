@@ -5,6 +5,7 @@ import Auth from './pages/Auth';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import AlbumDetails from './pages/AlbumDetails';
+import PlaylistDetails from './pages/PlaylistDetails';
 import Upload from './pages/Upload';
 import CreateAlbum from './pages/CreateAlbum';
 import ManageContent from './pages/ManageContent';
@@ -41,6 +42,7 @@ function App() {
   const [currentSong, setCurrentSong] = useState(null);
   const [likedSongs, setLikedSongs] = useState([]);
   const [savedAlbums, setSavedAlbums] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   const [songsQueue, setSongsQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -62,6 +64,25 @@ function App() {
     };
     fetchMe();
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchPlaylists();
+    }
+  }, [currentUser]);
+
+  const fetchPlaylists = async () => {
+    try {
+      const res = await axios.get('/api/playlist/user');
+      setPlaylists(res.data.playlists);
+    } catch (err) {
+      console.error("Failed to fetch playlists", err);
+    }
+  };
+
+  const updatePlaylistInState = (updatedPlaylist) => {
+    setPlaylists(prev => prev.map(p => p._id === updatedPlaylist._id ? updatedPlaylist : p));
+  };
 
   const toggleLike = async (musicId) => {
     try {
@@ -98,19 +119,20 @@ function App() {
     <div className="flex flex-col h-screen overflow-hidden bg-black text-white relative">
       <div className="flex flex-1 overflow-hidden">
         {location.pathname !== '/login' && (
-          <Sidebar currentUser={currentUser} />
+          <Sidebar currentUser={currentUser} playlists={playlists} fetchPlaylists={fetchPlaylists} />
         )}
         <main className="flex-1 overflow-y-auto relative bg-[#121212]">
           <Routes>
             <Route path="/login" element={<Auth setCurrentUser={setCurrentUser} />} />
-            <Route path="/" element={<Protected loading={loading} currentUser={currentUser}><Home currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-            <Route path="/search" element={<Protected loading={loading} currentUser={currentUser}><Search currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
-            <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} /></Protected>} />
+            <Route path="/" element={<Protected loading={loading} currentUser={currentUser}><Home currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} playlists={playlists} fetchPlaylists={fetchPlaylists} updatePlaylistInState={updatePlaylistInState} /></Protected>} />
+            <Route path="/search" element={<Protected loading={loading} currentUser={currentUser}><Search currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} playlists={playlists} fetchPlaylists={fetchPlaylists} updatePlaylistInState={updatePlaylistInState} /></Protected>} />
+            <Route path="/album/:albumId" element={<Protected loading={loading} currentUser={currentUser}><AlbumDetails currentUser={currentUser} setCurrentUser={setCurrentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} savedAlbums={savedAlbums} toggleSaveAlbum={toggleSaveAlbum} playlists={playlists} fetchPlaylists={fetchPlaylists} updatePlaylistInState={updatePlaylistInState} /></Protected>} />
+            <Route path="/playlist/:playlistId" element={<Protected loading={loading} currentUser={currentUser}><PlaylistDetails currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} fetchPlaylists={fetchPlaylists} updatePlaylistInState={updatePlaylistInState} /></Protected>} />
             <Route path="/upload" element={<Protected loading={loading} currentUser={currentUser}><Upload currentUser={currentUser} /></Protected>} />
             <Route path="/create-album" element={<Protected loading={loading} currentUser={currentUser}><CreateAlbum currentUser={currentUser} /></Protected>} />
             <Route path="/manage-content" element={<Protected loading={loading} currentUser={currentUser}><ManageContent currentUser={currentUser} /></Protected>} />
-            <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} /></Protected>} />
-            <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} /></Protected>} />
+            <Route path="/library" element={<Protected loading={loading} currentUser={currentUser}><Library currentUser={currentUser} playlists={playlists} fetchPlaylists={fetchPlaylists} /></Protected>} />
+            <Route path="/liked" element={<Protected loading={loading} currentUser={currentUser}><LikedSongs currentUser={currentUser} playSong={playSong} currentSong={currentSong} likedSongs={likedSongs} toggleLike={toggleLike} playlists={playlists} fetchPlaylists={fetchPlaylists} updatePlaylistInState={updatePlaylistInState} /></Protected>} />
           </Routes>
         </main>
       </div>
