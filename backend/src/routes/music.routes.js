@@ -16,7 +16,9 @@ router.post("/album", authMiddleware.authArtist, upload.single('image'), musicCo
 
 // Management routes
 router.get("/artist/content", authMiddleware.authArtist, musicController.getArtistContent)
+router.get("/admin/content", authMiddleware.authAdmin, musicController.getAllAdminContent)
 router.delete("/song/:musicId", authMiddleware.authArtist, musicController.deleteMusic)
+router.delete("/album/:albumId", authMiddleware.authArtist, musicController.deleteAlbum)
 router.put("/album/image/:albumId", authMiddleware.authArtist, upload.single('image'), musicController.updateAlbumImage)
 router.put("/song/image/:musicId", authMiddleware.authArtist, upload.single('image'), musicController.updateMusicImage)
 

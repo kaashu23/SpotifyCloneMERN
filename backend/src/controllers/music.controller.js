@@ -120,7 +120,7 @@ async function deleteMusic(req, res) {
         const music = await musicModel.findById(musicId);
 
         if (!music) return res.status(404).json({ message: "Music not found" });
-        if (music.artist.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+        if (music.artist.toString() !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: "Unauthorized" });
 
         // Remove from all albums
         await albumModel.updateMany({ musics: musicId }, { $pull: { musics: musicId } });
@@ -132,6 +132,21 @@ async function deleteMusic(req, res) {
     }
 }
 
+async function deleteAlbum(req, res) {
+    try {
+        const { albumId } = req.params;
+        const album = await albumModel.findById(albumId);
+
+        if (!album) return res.status(404).json({ message: "Album not found" });
+        if (album.artist.toString() !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: "Unauthorized" });
+
+        await albumModel.findByIdAndDelete(albumId);
+        res.status(200).json({ message: "Album deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Failed to delete album", error: err.message });
+    }
+}
+
 async function updateAlbumImage(req, res) {
     try {
         const { albumId } = req.params;
@@ -139,7 +154,7 @@ async function updateAlbumImage(req, res) {
         const album = await albumModel.findById(albumId);
 
         if (!album) return res.status(404).json({ message: "Album not found" });
-        if (album.artist.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+        if (album.artist.toString() !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: "Unauthorized" });
 
         const imageResult = await uploadFile(file.buffer, "Album_" + Date.now() + "_" + file.originalname, "SpotifyClone/albumimage");
         album.image = imageResult.url;
@@ -158,7 +173,7 @@ async function updateMusicImage(req, res) {
         const music = await musicModel.findById(musicId);
 
         if (!music) return res.status(404).json({ message: "Music not found" });
-        if (music.artist.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+        if (music.artist.toString() !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: "Unauthorized" });
 
         const imageResult = await uploadFile(file.buffer, "Image_" + Date.now() + "_" + file.originalname, "SpotifyClone/songimage");
         music.image = imageResult.url;
@@ -167,6 +182,16 @@ async function updateMusicImage(req, res) {
         res.status(200).json({ message: "Song image updated", image: music.image });
     } catch (err) {
         res.status(500).json({ message: "Failed to update song image", error: err.message });
+    }
+}
+
+async function getAllAdminContent(req, res) {
+    try {
+        const albums = await albumModel.find().populate("musics").populate("artist");
+        const musics = await musicModel.find().populate("artist");
+        res.status(200).json({ albums, musics });
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch content", error: err.message });
     }
 }
 
@@ -338,8 +363,10 @@ module.exports = {
     createMusic,
     createAlbum,
     deleteMusic,
+    deleteAlbum,
     updateAlbumImage,
     updateMusicImage,
+    getAllAdminContent,
     getArtistContent,
     getAllMusics,
     getAllAlbums,

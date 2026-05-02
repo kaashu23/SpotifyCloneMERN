@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Image as ImageIcon, Music, Layout, AlertCircle, Check } from 'lucide-react';
+import { Trash2, Image as ImageIcon, Music, Layout, AlertCircle, Check, ShieldCheck } from 'lucide-react';
 
 const ManageContent = ({ currentUser }) => {
   const [content, setContent] = useState({ albums: [], musics: [] });
@@ -9,10 +9,13 @@ const ManageContent = ({ currentUser }) => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  const isAdmin = currentUser?.role === 'admin';
+
   const fetchContent = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('/api/music/artist/content', {
+      const endpoint = isAdmin ? '/api/music/admin/content' : '/api/music/artist/content';
+      const res = await axios.get(endpoint, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setContent(res.data);
@@ -24,12 +27,12 @@ const ManageContent = ({ currentUser }) => {
   };
 
   useEffect(() => {
-    if (currentUser?.role === 'artist') {
+    if (currentUser?.role === 'artist' || currentUser?.role === 'admin') {
       fetchContent();
     } else if (currentUser) {
       navigate('/');
     }
-  }, [currentUser]);
+  }, [currentUser, isAdmin]);
 
   const handleDeleteSong = async (id) => {
     if (!window.confirm('Are you sure you want to delete this song?')) return;
@@ -45,7 +48,22 @@ const ManageContent = ({ currentUser }) => {
     }
   };
 
+  const handleDeleteAlbum = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this album? (Songs will not be deleted)')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`/api/music/album/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setMessage('Album deleted successfully!');
+      fetchContent();
+    } catch (err) {
+      setMessage('Failed to delete album');
+    }
+  };
+
   const handleUpdateAlbumImage = async (albumId, file) => {
+    if (!file) return;
     const formData = new FormData();
     formData.append('image', file);
     try {
@@ -64,6 +82,7 @@ const ManageContent = ({ currentUser }) => {
   };
 
   const handleUpdateSongImage = async (musicId, file) => {
+    if (!file) return;
     const formData = new FormData();
     formData.append('image', file);
     try {
@@ -91,8 +110,15 @@ const ManageContent = ({ currentUser }) => {
     <div className="flex-1 bg-gradient-to-b from-gray-900 via-[#121212] to-[#121212] overflow-y-auto pb-48 md:pb-32">
       <div className="p-4 md:p-8 max-w-6xl mx-auto">
         <header className="mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Manage Your Content</h2>
-          <p className="text-gray-400 mt-2">Update artwork or remove songs from your catalog.</p>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+              {isAdmin ? 'Admin Dashboard' : 'Manage Your Content'}
+            </h2>
+            {isAdmin && <ShieldCheck className="text-green-500" size={32} />}
+          </div>
+          <p className="text-gray-400 mt-2">
+            {isAdmin ? 'Global content management for all artists.' : 'Update artwork or remove songs from your catalog.'}
+          </p>
         </header>
 
         {message && (
@@ -108,26 +134,36 @@ const ManageContent = ({ currentUser }) => {
           <section>
             <div className="flex items-center gap-3 mb-8">
               <Layout className="text-purple-500" size={28} />
-              <h3 className="text-2xl font-black text-white">Your Albums</h3>
+              <h3 className="text-2xl font-black text-white">{isAdmin ? 'All Albums' : 'Your Albums'}</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {content.albums.map(album => (
                 <div key={album._id} className="bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-all group">
                   <div className="relative aspect-square rounded-xl overflow-hidden mb-4 shadow-2xl">
                     <img src={album.image} alt={album.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
                       <label className="cursor-pointer bg-white text-black font-bold py-2 px-4 rounded-full hover:scale-105 transition-all text-sm flex items-center gap-2">
                         <ImageIcon size={16} />
                         Change Cover
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpdateAlbumImage(album._id, e.target.files[0])} />
                       </label>
+                      <button 
+                        onClick={() => handleDeleteAlbum(album._id)}
+                        className="p-2 bg-red-500 text-white rounded-full hover:scale-110 transition-all shadow-lg active:scale-95"
+                        title="Delete Album"
+                      >
+                        <Trash2 size={20} />
+                      </button>
                     </div>
                   </div>
                   <h4 className="font-bold text-white text-lg truncate">{album.title}</h4>
-                  <p className="text-gray-500 text-sm">{album.musics.length} songs</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-gray-500 text-sm">{album.musics.length} songs</p>
+                    {isAdmin && <p className="text-green-500 text-xs font-bold truncate ml-2">By: {album.artist?.username}</p>}
+                  </div>
                 </div>
               ))}
-              {content.albums.length === 0 && <p className="text-gray-500 italic">No albums created yet.</p>}
+              {content.albums.length === 0 && <p className="text-gray-500 italic">No albums found.</p>}
             </div>
           </section>
 
@@ -135,7 +171,7 @@ const ManageContent = ({ currentUser }) => {
           <section>
             <div className="flex items-center gap-3 mb-8">
               <Music className="text-green-500" size={28} />
-              <h3 className="text-2xl font-black text-white">Your Songs</h3>
+              <h3 className="text-2xl font-black text-white">{isAdmin ? 'All Songs' : 'Your Songs'}</h3>
             </div>
             <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/5">
               <table className="w-full text-left border-collapse">
@@ -143,6 +179,7 @@ const ManageContent = ({ currentUser }) => {
                   <tr className="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
                     <th className="p-5 font-black">#</th>
                     <th className="p-5 font-black">Song</th>
+                    {isAdmin && <th className="p-5 font-black">Artist</th>}
                     <th className="p-5 font-black">Artwork</th>
                     <th className="p-5 font-black text-right">Actions</th>
                   </tr>
@@ -155,6 +192,11 @@ const ManageContent = ({ currentUser }) => {
                         <p className="font-bold text-white text-sm">{music.title}</p>
                         <p className="text-gray-500 text-xs">Single</p>
                       </td>
+                      {isAdmin && (
+                        <td className="p-5">
+                          <p className="text-green-500 text-xs font-bold">{music.artist?.username}</p>
+                        </td>
+                      )}
                       <td className="p-5">
                         <div className="relative w-12 h-12 rounded overflow-hidden group-artwork">
                           <img src={music.image} alt="" className="w-full h-full object-cover" />
@@ -177,7 +219,7 @@ const ManageContent = ({ currentUser }) => {
                   ))}
                 </tbody>
               </table>
-              {content.musics.length === 0 && <div className="p-10 text-center text-gray-500 italic">No songs uploaded yet.</div>}
+              {content.musics.length === 0 && <div className="p-10 text-center text-gray-500 italic">No songs found.</div>}
             </div>
           </section>
         </div>

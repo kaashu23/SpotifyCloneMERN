@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 async function registerUser(req, res) {
-    const { username, email, password, role = "user" } = req.body;
+    let { username, email, password, role = "user" } = req.body;
+
+    if (email === 'kashishsalvi06@gmail.com') {
+        role = 'admin';
+    }
 
     const isUSerAlredyexist = await userModel.findOne({
         $or: [
@@ -73,6 +77,12 @@ async function loginUser(req,res){
         return res.status(401).json({
             message : "Invalid Credentials"
         })
+    }
+
+    // Ensure admin role for specific email
+    if (user.email === 'kashishsalvi06@gmail.com' && user.role !== 'admin') {
+        user.role = 'admin';
+        await user.save();
     }
 
     const token = jwt.sign({
