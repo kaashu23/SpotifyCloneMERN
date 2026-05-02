@@ -158,9 +158,9 @@ const PlaylistDetails = ({ currentUser, playSong, currentSong, likedSongs, toggl
         <div className="flex items-center gap-4 md:gap-8">
           <button 
             onClick={() => playlist.songs?.length > 0 && playSong(playlist.songs[0], playlist.songs)}
-            className="w-14 h-14 md:w-16 md:h-16 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl text-black hover:bg-green-400"
+            className="w-12 h-12 md:w-16 md:h-16 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl text-black hover:bg-green-400"
           >
-            <Play size={32} fill="black" stroke="black" className="ml-1" />
+            <Play className="w-6 h-6 md:w-8 md:h-8 ml-1" fill="black" stroke="black" />
           </button>
           
           {isOwner && (
@@ -170,20 +170,20 @@ const PlaylistDetails = ({ currentUser, playSong, currentSong, likedSongs, toggl
                 className="focus:outline-none hover:scale-110 active:scale-90 transition-all p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white"
                 title={playlist.isPublic ? "Make Private" : "Make Public"}
               >
-                {playlist.isPublic ? <Globe size={32} /> : <Lock size={32} />}
+                {playlist.isPublic ? <Globe className="w-6 h-6 md:w-8 md:h-8" /> : <Lock className="w-6 h-6 md:w-8 md:h-8" />}
               </button>
               <button 
                   onClick={() => setDeleteModal({ isOpen: true, type: 'playlist', data: null })}
                   className="focus:outline-none hover:scale-110 active:scale-90 transition-all p-2 rounded-full hover:bg-red-500/10 text-gray-400 hover:text-red-500"
                   title="Delete Playlist"
               >
-                  <Trash2 size={32} />
+                  <Trash2 className="w-6 h-6 md:w-8 md:h-8" />
               </button>
             </>
           )}
           
           <button className="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5">
-            <MoreHorizontal size={32} />
+            <MoreHorizontal className="w-6 h-6 md:w-8 md:h-8" />
           </button>
         </div>
       </div>

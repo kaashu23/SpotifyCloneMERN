@@ -117,7 +117,7 @@ const Upload = ({ currentUser }) => {
               navigate('/login');
               window.location.reload();
             }}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2.5 px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2 px-6 sm:py-2.5 sm:px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
           >
             Logout
           </button>
@@ -218,7 +218,7 @@ const Upload = ({ currentUser }) => {
             <button 
               type="submit"
               disabled={loading}
-              className="mt-4 bg-green-500 hover:bg-green-400 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed text-black font-black py-4 rounded-full transition-all flex items-center justify-center gap-3 shadow-xl shadow-green-500/20 active:scale-95"
+              className="mt-4 bg-green-500 hover:bg-green-400 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed text-black font-black py-3 sm:py-4 rounded-full transition-all flex items-center justify-center gap-3 shadow-xl shadow-green-500/20 active:scale-95"
             >
               {loading ? (
                 <>

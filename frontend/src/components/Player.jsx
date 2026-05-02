@@ -196,7 +196,7 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
         
         <header className="flex justify-between items-center mb-4 relative z-10">
           <button onClick={() => setIsExpanded(false)} className="p-2 -ml-2 text-white/60 hover:text-white transition-colors active:scale-90">
-            <ChevronDown size={32} />
+            <ChevronDown className="w-8 h-8" />
           </button>
           <div className="text-center flex-1 px-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300/30">Playing Track</p>
@@ -261,16 +261,16 @@ const Player = ({ currentSong, songsQueue, playSong, likedSongs, toggleLike }) =
             <Shuffle size={18} />
           </button>
           <button onClick={playPrev} className="text-white hover:text-purple-300 transition-all active:scale-75">
-            <SkipBack size={32} fill="currentColor" />
+            <SkipBack className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-black shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-90 transition-all flex-shrink-0"
+            className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-90 transition-all flex-shrink-0"
           >
-            {isPlaying ? <Pause size={28} fill="black" /> : <Play size={28} fill="black" className="ml-1" />}
+            {isPlaying ? <Pause className="w-6 h-6" fill="black" /> : <Play className="w-6 h-6 ml-1" fill="black" />}
           </button>
           <button onClick={playNext} className="text-white hover:text-purple-300 transition-all active:scale-75">
-            <SkipForward size={32} fill="currentColor" />
+            <SkipForward className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" />
           </button>
           <button className="text-purple-300/30 hover:text-white transition-colors">
             <Repeat size={18} />

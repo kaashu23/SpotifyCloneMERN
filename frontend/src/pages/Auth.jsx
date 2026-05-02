@@ -97,7 +97,7 @@ const Auth = ({ setCurrentUser }) => {
 
           <button
             type="submit"
-            className="w-full bg-[#1ed760] text-black font-bold py-2.5 sm:py-3 rounded-full hover:scale-[1.02] transition-transform mt-2 sm:mt-4 text-sm"
+            className="w-full bg-[#1ed760] text-black font-bold py-2 sm:py-3 rounded-full hover:scale-[1.02] transition-transform mt-2 sm:mt-4 text-sm"
           >
             {isLogin ? 'Log In' : 'Sign Up'}
           </button>

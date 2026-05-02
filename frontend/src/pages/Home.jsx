@@ -106,7 +106,7 @@ const Home = ({ currentUser, setCurrentUser, playSong, currentSong, likedSongs, 
               setCurrentUser(null);
               navigate('/login');
             }}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2.5 px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full py-2 px-6 sm:py-2.5 sm:px-8 border border-white/10 text-sm font-bold transition-all active:scale-95 shadow-lg"
           >
             Logout
           </button>
